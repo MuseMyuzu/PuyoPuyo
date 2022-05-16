@@ -2,24 +2,28 @@
 using System.Collections.Generic;
 using UnityEngine;
 
+//2022/04/30
+//ScoreObjectsをpubScoreObjectにし、staticなscoreObjectを作った
+
 public class Score : MonoBehaviour
 {
-    public Sprite[] fontTemplateList = new Sprite[10];
-    public GameObject ScoreObjects;
-    SpriteRenderer spRenderer;
+    public static Sprite[] fontTemplateList = new Sprite[10];
+    public GameObject pubScoreObject;
+    static GameObject scoreObject;
+    static SpriteRenderer spRenderer;
     // static fontLength;
-    public int score;
+    public static int score;
     static int[] rensaBonus = new int[] { 0, 8, 16, 32, 64, 96, 128, 160, 192, 224, 256, 288, 320, 352, 384, 416, 448, 480, 512, 544, 576, 608, 640, 672 };
     static int[] pieceBonus = new int[] { 0, 0, 0, 0, 2, 3, 4, 5, 6, 7, 10, 10 };
     static int[] colorBonus = new int[] { 0, 0, 3, 6, 12, 24 };
 
-    public void initialize()
+    public static void initialize()
     {
         score = 0;
         showScore();
     }
 
-    public void showScore()
+    public static void showScore()
     {
         int scoreTemp = score;
         // スコアを下の桁から埋めていく
@@ -30,7 +34,7 @@ public class Score : MonoBehaviour
             // 一番うしろに追加するのではなく、一番前に追加することで、スコアの並びを数字と同じようにする
             //scoreElement.insertBefore(this.fontTemplateList[number].cloneNode(true), scoreElement.firstChild);
 
-            GameObject child = ScoreObjects.transform.GetChild(i).gameObject;
+            GameObject child = scoreObject.transform.GetChild(i).gameObject;
             spRenderer = child.gameObject.GetComponent<SpriteRenderer>();
             spRenderer.sprite = fontTemplateList[number];
 
@@ -60,5 +64,11 @@ public class Score : MonoBehaviour
     {
         score += addScore;
         showScore();
+    }
+
+    void Start()
+    {
+        //publicなオブジェクトを静的オブジェクトに代入
+        scoreObject = pubScoreObject;
     }
 }

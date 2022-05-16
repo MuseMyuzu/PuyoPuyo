@@ -44,14 +44,14 @@ public class Stage : MonoBehaviour
     public static List<PuyoInfo> erasingPuyoInfoList = new List<PuyoInfo>();
 
     static GameObject ZenkeshiObject;
-    public GameObject ZenkeshiPrefab;
-    SpriteRenderer spRenderer;
-
-    Game gameScript;
+    public GameObject pubZenkeshiPrefab;
+    static GameObject ZenkeshiPrefab;
+    static SpriteRenderer spRenderer;
 
     //キャラボイス用
-    AudioSource audioSource;
-    public AudioClip[] voice;
+    static AudioSource audioSource;
+    public AudioClip[] pubVoice;
+    static AudioClip[] voice;
 
     
 
@@ -317,7 +317,7 @@ public class Stage : MonoBehaviour
         return null;
     }
     // 消すアニメーションをする
-    public bool erasing(int frame)
+    public static bool erasing(int frame)
     {
         int elapsedFrame = frame - eraseStartFrame;
         float ratio = elapsedFrame / Config.eraseAnimationDuration;
@@ -331,7 +331,7 @@ public class Stage : MonoBehaviour
 
             //キャラボイスを鳴らす
             //連鎖数は、Gameスクリプトで計算した値を用いる
-            switch (gameScript.combinationCount)
+            switch (Game.combinationCount)
             {
                 case 1: audioSource.PlayOneShot(voice[0]); break; //1連鎖
                 case 2: audioSource.PlayOneShot(voice[1]); break; //2連鎖
@@ -387,7 +387,7 @@ public class Stage : MonoBehaviour
         }
     }
 
-    public void showZenkeshi()
+    public static void showZenkeshi()
     {
         ZenkeshiObject = Instantiate(ZenkeshiPrefab) as GameObject;
         float startTime = DateTime.Now.Hour * 60 * 60 * 1000 + DateTime.Now.Minute * 60 * 1000 
@@ -404,7 +404,7 @@ public class Stage : MonoBehaviour
         }
     }
 
-    public void hideZenkeshi()
+    public static void hideZenkeshi()
     {
         //全消しの文字がないときは何もしない
         if (!ZenkeshiObject) return;
@@ -434,7 +434,12 @@ public class Stage : MonoBehaviour
     void Start()
     {
         audioSource = GetComponent<AudioSource>();
-        gameScript = gameObject.GetComponent<Game>();
+        int i=0;
+        foreach(AudioClip ac in pubVoice){
+            voice[i] = ac;
+            i++;
+        }
+        ZenkeshiPrefab = pubZenkeshiPrefab;
     }
 }
 

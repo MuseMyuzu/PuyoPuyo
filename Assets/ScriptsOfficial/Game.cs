@@ -8,17 +8,15 @@ public class Game : MonoBehaviour
     string mode;          // ゲームの現在の「モード」
     string previous_mode; //一つ前のモード
     int frame;   // ゲームの現在フレーム（1/60秒ごとに1追加される）
-    public int combinationCount = 0; // 何連鎖かどうか
+    public static int combinationCount = 0; // 何連鎖かどうか
     bool loopFrag = false;    //ループを開始させるフラグ
     //連鎖数を表示させるためのテキスト
     public GameObject rensaObj;
     Text rensaText;
 
-    //public voidの関数を呼ぶために必要
-    Player playerScript;
     Next nextScript;
+    Player playerScript;
     PuyoImage puyoImageScript;
-    Stage stageScript;
     Score scoreScript;
 
     void initialize()
@@ -30,7 +28,7 @@ public class Game : MonoBehaviour
         // ユーザー操作の準備をする
         Player.initialize();
         // シーンを初期状態にセットする
-        scoreScript.initialize();
+        Score.initialize();
         // スコア表示の準備をする
         mode = "start";
         previous_mode = "";
@@ -95,7 +93,7 @@ public class Game : MonoBehaviour
                     rensaText = rensaObj.GetComponent<Text>();
                     rensaText.text = combinationCount.ToString();
 
-                    stageScript.hideZenkeshi();
+                    Stage.hideZenkeshi();
                 }
                 else
                 {
@@ -103,7 +101,7 @@ public class Game : MonoBehaviour
                     if (Stage.puyoCount == 0 && combinationCount > 0)
                     {
                         // 全消しの処理をする
-                        stageScript.showZenkeshi();
+                        Stage.showZenkeshi();
                         scoreScript.addScore(3600);
                     }
                     combinationCount = 0;
@@ -112,7 +110,7 @@ public class Game : MonoBehaviour
                 }
                 break;
             case "erasing":
-                if (!stageScript.erasing(frame))
+                if (!Stage.erasing(frame))
                 {
                     // 消し終わったら、再度落ちるかどうか判定する
                     mode = "checkFall";
@@ -180,8 +178,6 @@ public class Game : MonoBehaviour
         playerScript = gameObject.GetComponent<Player>();
         nextScript = gameObject.GetComponent<Next>();
         puyoImageScript = gameObject.GetComponent<PuyoImage>();
-        stageScript = gameObject.GetComponent<Stage>();
-        scoreScript = gameObject.GetComponent<Score>();
         initialize();
         // ゲームを開始する
         this.loopFrag = true;
