@@ -3,32 +3,36 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
+//2022/06/27
+//Config以外のstaticを基本的に排除する。
+
 public class Game : MonoBehaviour
 {
     string mode;          // ゲームの現在の「モード」
     string previous_mode; //一つ前のモード
     int frame;   // ゲームの現在フレーム（1/60秒ごとに1追加される）
-    public static int combinationCount = 0; // 何連鎖かどうか
+    public int combinationCount = 0; // 何連鎖かどうか
     bool loopFrag = false;    //ループを開始させるフラグ
     //連鎖数を表示させるためのテキスト
     public GameObject rensaObj;
     Text rensaText;
 
-    Next nextScript;
-    Player playerScript;
-    PuyoImage puyoImageScript;
-    Score scoreScript;
+    Next next;
+    player player;
+    PuyoImage puyoImage;
+    Score score;
+    stage stage;
 
     void initialize()
     {
         // 画像を準備する
-        PuyoImage.initialize();
+        puyoImage.initialize();
         // ステージを準備する
-        Stage.initialize();
+        stage.initialize();
         // ユーザー操作の準備をする
-        Player.initialize();
+        player.initialize();
         // シーンを初期状態にセットする
-        scoreScript.initialize();
+        score.initialize();
         // スコア表示の準備をする
         mode = "start";
         previous_mode = "";
@@ -52,14 +56,14 @@ public class Game : MonoBehaviour
         {
             case "start":
                 //ネクスト、ネクネクを表示
-                nextScript.OpeningDecidePuyoColor();
-                nextScript.ShowNextPuyo();
+                next.OpeningDecidePuyoColor();
+                next.ShowNextPuyo();
                 // 最初は、もしかしたら空中にあるかもしれないぷよを自由落下させるところからスタート
                 mode = "checkFall";
                 break;
             case "checkFall":
                 // 落ちるかどうか判定する
-                if (Stage.checkFall())
+                if (stage.checkFall())
                 {
                     //ステージに落ちるぷよがある
                     mode = "fall";
@@ -71,7 +75,8 @@ public class Game : MonoBehaviour
                 }
                 break;
             case "fall":
-                if (!Stage.fall())
+                //ぷよを落とす
+                if (!stage.fall())
                 {
                     // すべて落ちきったら、ぷよを消せるかどうか判定する
                     mode = "checkErase";
@@ -79,7 +84,7 @@ public class Game : MonoBehaviour
                 break;
             case "checkErase":
                 // 消せるかどうか判定する
-                var eraseInfo = Stage.checkErase(frame);
+                var eraseInfo = stage.checkErase(frame);
                 //eraseInfoには、消せるぷよの個数と色の情報が入る
                 if (eraseInfo != null)
                 {
@@ -88,21 +93,21 @@ public class Game : MonoBehaviour
                     //連鎖数を1増やす
                     combinationCount++;
                     // 得点を計算する
-                    scoreScript.calculateScore(combinationCount, eraseInfo.piece, eraseInfo.color);
+                    score.calculateScore(combinationCount, eraseInfo.piece, eraseInfo.color);
                     //表示させる連鎖数の変更
                     rensaText = rensaObj.GetComponent<Text>();
                     rensaText.text = combinationCount.ToString();
 
-                    Stage.hideZenkeshi();
+                    stage.hideZenkeshi();
                 }
                 else
                 {
                     //消せるぷよがない
-                    if (Stage.puyoCount == 0 && combinationCount > 0)
+                    if (stage.puyoCount == 0 && combinationCount > 0)
                     {
                         // 全消しの処理をする
-                        Stage.showZenkeshi();
-                        scoreScript.addScore(3600);
+                        stage.showZenkeshi();
+                        score.addScore(3600);
                     }
                     combinationCount = 0;
                     // 消せなかったら、新しいぷよを登場させる
@@ -110,14 +115,15 @@ public class Game : MonoBehaviour
                 }
                 break;
             case "erasing":
-                if (!Stage.erasing(frame))
+                //ぷよを消す
+                if (!stage.erasing(frame))
                 {
                     // 消し終わったら、再度落ちるかどうか判定する
                     mode = "checkFall";
                 }
                 break;
             case "newPuyo":
-                if (!playerScript.createNewPuyo())
+                if (!player.createNewPuyo())
                 {
                     // 新しい操作用ぷよを作成出来なかったら、ゲームオーバー
                     mode = "gameOver";
@@ -130,55 +136,40 @@ public class Game : MonoBehaviour
                 break;
             case "playing":
                 // プレイヤーが操作する
-                string action = playerScript.PlayMoveRotate(frame);
+                string action = player.PlayMoveRotate(frame);
                 mode = action; // 'playing' 'fix' のどれかが帰ってくる
                 break;
-            /*
-            case "moving":
-                if (!Player.moving(frame))
-                {
-                    // 移動が終わったので操作可能にする
-                    mode = "playing";
-                }
-                break;
-            case "rotating":
-                if (!Player.rotating(frame))
-                {
-                    // 回転が終わったので操作可能にする
-                    mode = "playing";
-                }
-                break;
-            */
             case "fix":
                 // 現在の位置でぷよを固定する
                 // fixの状態でしばらく待つ
-                if(Player.fix()){
+                if(player.fix()){
                     // 固定したら、まず自由落下を確認する
                     mode = "checkFall";
                 }
                 break;
             case "gameOver":
                 // ばたんきゅーの準備をする
-                puyoImageScript.prepareBatankyu(frame);
+                puyoImage.prepareBatankyu(frame);
                 mode = "batankyu";
                 break;
             case "batankyu":
-                puyoImageScript.batankyu(frame);
-                Player.batankyu();
+                //ばたんきゅー状態
+                puyoImage.batankyu(frame);
+                player.batankyu();
                 break;
         }
         frame++;
     }
 
-    // Start is called before the first frame update
     //起動されたときに呼ばれる関数を登録する
     void Start()
     {
         // まずステージを整える
-        playerScript = gameObject.GetComponent<Player>();
-        nextScript = gameObject.GetComponent<Next>();
-        puyoImageScript = gameObject.GetComponent<PuyoImage>();
-        scoreScript = gameObject.GetComponent<Score>();
+        player    = gameObject.GetComponent<player>();
+        next      = gameObject.GetComponent<Next>();
+        puyoImage = gameObject.GetComponent<PuyoImage>();
+        score     = gameObject.GetComponent<Score>();
+        stage     = gameObject.GetComponent<Stage>();
         initialize();
         // ゲームを開始する
         this.loopFrag = true;
