@@ -1012,7 +1012,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 835fcf2d0d8f30d46bfd55b0dd15e88d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  pubScoreObject: {fileID: 1524493695}
+  scoreObject: {fileID: 1524493695}
 --- !u!114 &1085691807
 MonoBehaviour:
   m_ObjectHideFlags: 0

@@ -28,7 +28,7 @@ public class Game : MonoBehaviour
         // ユーザー操作の準備をする
         Player.initialize();
         // シーンを初期状態にセットする
-        Score.initialize();
+        scoreScript.initialize();
         // スコア表示の準備をする
         mode = "start";
         previous_mode = "";
@@ -178,6 +178,7 @@ public class Game : MonoBehaviour
         playerScript = gameObject.GetComponent<Player>();
         nextScript = gameObject.GetComponent<Next>();
         puyoImageScript = gameObject.GetComponent<PuyoImage>();
+        scoreScript = gameObject.GetComponent<Score>();
         initialize();
         // ゲームを開始する
         this.loopFrag = true;

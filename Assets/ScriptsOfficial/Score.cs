@@ -4,12 +4,13 @@ using UnityEngine;
 
 //2022/04/30
 //ScoreObjectsをpubScoreObjectにし、staticなscoreObjectを作った
+//2022/06/27
+//ScoreObjectsに戻した
 
 public class Score : MonoBehaviour
 {
     public static Sprite[] fontTemplateList = new Sprite[10];
-    public GameObject pubScoreObject;
-    static GameObject scoreObject;
+    public GameObject scoreObject;
     static SpriteRenderer spRenderer;
     // static fontLength;
     public static int score;
@@ -17,13 +18,13 @@ public class Score : MonoBehaviour
     static int[] pieceBonus = new int[] { 0, 0, 0, 0, 2, 3, 4, 5, 6, 7, 10, 10 };
     static int[] colorBonus = new int[] { 0, 0, 3, 6, 12, 24 };
 
-    public static void initialize()
+    public void initialize()
     {
         score = 0;
         showScore();
     }
 
-    public static void showScore()
+    public void showScore()
     {
         int scoreTemp = score;
         // スコアを下の桁から埋めていく
@@ -68,7 +69,6 @@ public class Score : MonoBehaviour
 
     void Start()
     {
-        //publicなオブジェクトを静的オブジェクトに代入
-        scoreObject = pubScoreObject;
+
     }
 }
