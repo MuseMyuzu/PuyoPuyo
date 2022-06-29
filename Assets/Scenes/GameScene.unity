@@ -999,9 +999,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   puyoCount: 0
-  pubZenkeshiPrefab: {fileID: 2871293286561251377, guid: c8fb2c2832ef49d48b918278154d664c,
-    type: 3}
-  pubVoice:
+  ZenkeshiPrefab: {fileID: 0}
+  voice:
   - {fileID: 8300000, guid: 5b1603c7e8f59434eae2a5e4b3e6f01f, type: 3}
   - {fileID: 8300000, guid: 2fd42c246b863774191c9eeedfb7d11e, type: 3}
   - {fileID: 8300000, guid: a7d1771421c0abb418f1cb4402d8d557, type: 3}
@@ -1112,7 +1111,7 @@ AudioSource:
   m_Enabled: 1
   serializedVersion: 4
   OutputAudioMixerGroup: {fileID: 0}
-  m_audioClip: {fileID: 8300000, guid: 5b1603c7e8f59434eae2a5e4b3e6f01f, type: 3}
+  m_audioClip: {fileID: 0}
   m_PlayOnAwake: 0
   m_Volume: 1
   m_Pitch: 1

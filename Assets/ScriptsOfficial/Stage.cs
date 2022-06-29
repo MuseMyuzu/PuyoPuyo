@@ -43,14 +43,12 @@ public class Stage : MonoBehaviour
     public List<PuyoInfo> erasingPuyoInfoList = new List<PuyoInfo>();
 
     private GameObject ZenkeshiObject;
-    public GameObject pubZenkeshiPrefab;
-    private GameObject ZenkeshiPrefab;
+    public GameObject ZenkeshiPrefab;
     private SpriteRenderer spRenderer;
 
     //キャラボイス用
     private AudioSource audioSource;
-    public AudioClip[] pubVoice;
-    private  AudioClip[] voice;
+    public AudioClip[] voice;
 
     private Game game;    
 
@@ -434,12 +432,6 @@ public class Stage : MonoBehaviour
     void Start()
     {
         audioSource = GetComponent<AudioSource>();
-        int i=0;
-        foreach(AudioClip ac in pubVoice){
-            voice[i] = ac;
-            i++;
-        }
-        ZenkeshiPrefab = pubZenkeshiPrefab;
 
         this.game = gameObject.GetComponent<Game>();
     }
