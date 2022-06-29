@@ -88,9 +88,9 @@ public class Player : MonoBehaviour
     private int firstClickFrame = 0; //ダブルクリックの際、一回目にクリックしたフレーム
     private int fixingFrame = 0; //fix関数の中に滞在しているフレーム数
 
-    Next next;
-    Score score;
-    stage stage;
+    private Next next;
+    private Score score;
+    private Stage stage;
 
     public void initialize()
     {
@@ -846,9 +846,9 @@ public class Player : MonoBehaviour
 
     void Start()
     {
-        next = gameObject.GetComponent<Next>();
-        score = gameObject.GetComponent<Score>();
-        stage = gameObject.GetComponent<stage>();
+        this.next = gameObject.GetComponent<Next>();
+        this.score = gameObject.GetComponent<Score>();
+        this.stage = gameObject.GetComponent<Stage>();
     }
 
     void Update()

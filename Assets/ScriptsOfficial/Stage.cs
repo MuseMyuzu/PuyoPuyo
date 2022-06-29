@@ -52,7 +52,7 @@ public class Stage : MonoBehaviour
     public AudioClip[] pubVoice;
     private  AudioClip[] voice;
 
-    Game game;    
+    private Game game;    
 
     public void initialize()
     {
@@ -107,7 +107,7 @@ public class Stage : MonoBehaviour
                 }
             }
         }
-        Stage.puyoCount = puyoCount;
+        this.puyoCount = puyoCount;
     }
 
     // （画面と）メモリ（両方）に puyo をセットする
@@ -441,7 +441,7 @@ public class Stage : MonoBehaviour
         }
         ZenkeshiPrefab = pubZenkeshiPrefab;
 
-        game = gameObject.GetComponent<Game>();
+        this.game = gameObject.GetComponent<Game>();
     }
 }
 

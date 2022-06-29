@@ -970,6 +970,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 707c593dac0b9df438cf128632d473d8, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  combinationCount: 0
   rensaObj: {fileID: 383631800}
 --- !u!4 &1085691804
 Transform:
@@ -997,9 +998,19 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d109039c6f65bec4c985404f0328aef6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  puyoCount: 0
   pubZenkeshiPrefab: {fileID: 2871293286561251377, guid: c8fb2c2832ef49d48b918278154d664c,
     type: 3}
-  pubVoice: []
+  pubVoice:
+  - {fileID: 8300000, guid: 5b1603c7e8f59434eae2a5e4b3e6f01f, type: 3}
+  - {fileID: 8300000, guid: 2fd42c246b863774191c9eeedfb7d11e, type: 3}
+  - {fileID: 8300000, guid: a7d1771421c0abb418f1cb4402d8d557, type: 3}
+  - {fileID: 8300000, guid: b3c2bda352af37a40a20d944c5b82760, type: 3}
+  - {fileID: 8300000, guid: 1b8485c2ccdc35d47aeb2427c4b3c030, type: 3}
+  - {fileID: 8300000, guid: 107457b0d013abb43ba82131a1e6ea25, type: 3}
+  - {fileID: 8300000, guid: 6dbd0a40dcb137440b9c830f491d6437, type: 3}
+  - {fileID: 8300000, guid: c18c8492718a7314a803a9c293f81229, type: 3}
+  - {fileID: 8300000, guid: 29597615e1a5f2b46aeb28fe7bddf38c, type: 3}
 --- !u!114 &1085691806
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1012,7 +1023,19 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 835fcf2d0d8f30d46bfd55b0dd15e88d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  fontTemplateList:
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
   scoreObject: {fileID: 1524493695}
+  score: 0
 --- !u!114 &1085691807
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1025,6 +1048,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ff12dc2ae376b524297d0222043b943b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  gameOverFrame: 0
   batankyuPrefab: {fileID: 6934897873275459906, guid: 5aff2a45796c6864eb63f74cbc35cba9,
     type: 3}
 --- !u!114 &1085691808

@@ -17,11 +17,11 @@ public class Game : MonoBehaviour
     public GameObject rensaObj;
     Text rensaText;
 
-    Next next;
-    player player;
-    PuyoImage puyoImage;
-    Score score;
-    Stage stage;
+    private Next next;
+    private Player player;
+    private PuyoImage puyoImage;
+    private Score score;
+    private Stage stage;
 
     void initialize()
     {
@@ -165,12 +165,12 @@ public class Game : MonoBehaviour
     void Start()
     {
         // まずステージを整える
-        player    = gameObject.GetComponent<player>();
-        next      = gameObject.GetComponent<Next>();
-        puyoImage = gameObject.GetComponent<PuyoImage>();
-        score     = gameObject.GetComponent<Score>();
-        stage     = gameObject.GetComponent<Stage>();
-        initialize();
+        this.player    = gameObject.GetComponent<Player>();
+        this.next      = gameObject.GetComponent<Next>();
+        this.puyoImage = gameObject.GetComponent<PuyoImage>();
+        this.score     = gameObject.GetComponent<Score>();
+        this.stage     = gameObject.GetComponent<Stage>();
+        this.initialize();
         // ゲームを開始する
         this.loopFrag = true;
     }
