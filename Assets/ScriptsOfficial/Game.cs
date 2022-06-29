@@ -21,7 +21,7 @@ public class Game : MonoBehaviour
     player player;
     PuyoImage puyoImage;
     Score score;
-    stage stage;
+    Stage stage;
 
     void initialize()
     {

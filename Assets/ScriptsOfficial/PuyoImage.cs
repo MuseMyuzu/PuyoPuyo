@@ -4,15 +4,11 @@ using UnityEngine;
 
 public class PuyoImage : MonoBehaviour
 {
-    /*
-    static puyoImages[];
-    static batankyuImage;
-    */
-    public static float gameOverFrame;
-    static GameObject batankyuObject;
+    public float gameOverFrame;
+    private GameObject batankyuObject;
     public GameObject batankyuPrefab;
 
-    public static void initialize()
+    public void initialize()
     {
         
     }
@@ -22,10 +18,6 @@ public class PuyoImage : MonoBehaviour
     {
         gameOverFrame = Mathf.FloorToInt(frame);
         batankyuObject = Instantiate(batankyuPrefab) as GameObject;
-        /*
-        Stage.stageElement.appendChild(this.batankyuImage);
-        this.batankyuImage.style.top = -this.batankyuImage.height + 'px';
-        */
     }
 
     public void batankyu(int frame)

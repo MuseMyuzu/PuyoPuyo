@@ -8,7 +8,7 @@ using UnityEngine.SceneManagement;
 //moveFlag、rotateFlagの導入
 //"moving","rotating"のモードを廃止し、PlayMoveRotate関数にまとめた
 //2021/03/12
-//Playing()のfixを返す部分を取り出して、moveFlagやrotateFlagの前に持ってきた
+//playing()のfixを返す部分を取り出して、moveFlagやrotateFlagの前に持ってきた
 //2021/03/13
 //actionStartFrameをmoveStartFrameとrotateStartFrameに分けた
 //かべに挟まれているときに、回転ボタンをダブルクリックすると180度回転する仕組みの作成開始
@@ -42,8 +42,8 @@ using UnityEngine.SceneManagement;
 
 class PuyoStatus
 {
-    public int x;        //Stage.boardの列成分に対応
-    public int y;        //Stage.boardの行成分に対応
+    public int x;        //stage.boardの列成分に対応
+    public int y;        //stage.boardの行成分に対応
     public float sceneX; //ゲームシーン上でのぷよの基準からのx座標
     public float sceneY; //ゲームシーン上でのぷよの基準からのy座標（ただし20210911現在、絶対値（実際の座標とは符号が逆））
     public int dx;       //-1か1の値を取る。子ぷよの相対的なx座標
@@ -61,35 +61,38 @@ class KeyStatus
 
 public class Player : MonoBehaviour
 {
-    static GameObject centerPuyoObj; //軸ぷよオブジェクト
-    static GameObject movablePuyoObj;//子ぷよオブジェクト
-    static int centerPuyo;           //軸ぷよの色（1:赤、2:緑、3:青、4:黄）
-    static int movablePuyo;          //子ぷよの色
+    private GameObject centerPuyoObj; //軸ぷよオブジェクト
+    private GameObject movablePuyoObj;//子ぷよオブジェクト
+    private int centerPuyo;           //軸ぷよの色（1:赤、2:緑、3:青、4:黄）
+    private int movablePuyo;          //子ぷよの色
+
     public GameObject redPrefab;
     public GameObject greenPrefab;
     public GameObject bluePrefab;
     public GameObject yellowPrefab;
-    static PuyoStatus puyoStatus = new PuyoStatus();
-    static int groundFrame;          //接地している時間
-    static KeyStatus keyStatus = new KeyStatus();
-    static int moveStartFrame;
-    static int rotateStartFrame;
-    static int moveSource;
-    static int moveDestination;
-    static int rotateBeforeLeft;
-    static int rotateAfterLeft;
-    static int rotateFromRotation; //回転前の角度
-    static int rotateDirection; //右回転なら-1、左回転なら1
-    static bool moveFlag = false; //ぷよが左右移動をしている最中ならtrue
-    static bool rotateFlag = false; //ぷよが回転をしている最中ならtrue
-    static bool quickTurnFlag = false; //ぷよが180度回転をしている最中ならtrue
-    static int firstClickFrame = 0; //ダブルクリックの際、一回目にクリックしたフレーム
-    static int fixingFrame = 0; //fix関数の中に滞在しているフレーム数
 
-    Next nextScript;
-    Score scoreScript;
+    private PuyoStatus puyoStatus = new PuyoStatus();
+    private int groundFrame;          //接地している時間
+    private KeyStatus keyStatus = new KeyStatus();
+    private int moveStartFrame;
+    private int rotateStartFrame;
+    private int moveSource;
+    private int moveDestination;
+    private int rotateBeforeLeft;
+    private int rotateAfterLeft;
+    private int rotateFromRotation; //回転前の角度
+    private int rotateDirection; //右回転なら-1、左回転なら1
+    private bool moveFlag = false; //ぷよが左右移動をしている最中ならtrue
+    private bool rotateFlag = false; //ぷよが回転をしている最中ならtrue
+    private bool quickTurnFlag = false; //ぷよが180度回転をしている最中ならtrue
+    private int firstClickFrame = 0; //ダブルクリックの際、一回目にクリックしたフレーム
+    private int fixingFrame = 0; //fix関数の中に滞在しているフレーム数
 
-    public static void initialize()
+    Next next;
+    Score score;
+    stage stage;
+
+    public void initialize()
     {
         keyStatus.right = false;
         keyStatus.left = false;
@@ -101,17 +104,19 @@ public class Player : MonoBehaviour
     public bool createNewPuyo()
     {
         // ぷよぷよが置けるかどうか、上から数えて二番目の段の左から3つ目を確認する
-        if (Stage.board[1][2] != 0)
+        if (stage.board[1][2] != 0)
         {
             // 空白でない場合は新しいぷよを置けない（ばたんきゅー）
             return false;
         }
+
         // 新しいぷよの色にネクストの色を代入
-        centerPuyo = nextScript.nextCenterPuyo;
-        movablePuyo = nextScript.nextMovablePuyo;
+        centerPuyo = next.nextCenterPuyo;
+        movablePuyo = next.nextMovablePuyo;
         //次のネクスト、ネクネクの色を決めて表示
-        nextScript.DecidePuyoColor();
-        nextScript.ShowNextPuyo();
+        next.DecidePuyoColor();
+        next.ShowNextPuyo();
+
         //軸ぷよ、子ぷよを生成（位置はまだ決まっていない）
         switch (centerPuyo)
         {
@@ -129,6 +134,7 @@ public class Player : MonoBehaviour
             case 4: movablePuyoObj = Instantiate(yellowPrefab) as GameObject; break;
             default: movablePuyoObj = Instantiate(redPrefab) as GameObject; break;
         }
+
         // ぷよの初期配置を定める
         puyoStatus.x = 2;          // 中心ぷよのx位置: 左から3列目
         puyoStatus.y = 0;         // 中心ぷよのy位置: 天井から一つ上（画面外）
@@ -141,12 +147,12 @@ public class Player : MonoBehaviour
         // 接地時間はゼロ
         groundFrame = 0;
         // ぷよを描画
-        setPuyoPosition();
+        this.setPuyoPosition();
         return true;
     }
 
     //ぷよを描画（ゲームシーン上に配置）
-    static void setPuyoPosition()
+    public void setPuyoPosition()
     {
         //軸ぷよを描画（移動してくる）
         centerPuyoObj.gameObject.transform.position = new Vector3(puyoStatus.sceneX, -puyoStatus.sceneY, 0);
@@ -157,7 +163,7 @@ public class Player : MonoBehaviour
         
     }
 
-    public bool Falling(bool isDownPressed)
+    public bool falling(bool isDownPressed)
     {
         // 現状の場所の下にブロックがあるかどうか確認する
         bool isBlocked = false;
@@ -166,8 +172,8 @@ public class Player : MonoBehaviour
         int dx = puyoStatus.dx;
         int dy = puyoStatus.dy;
         Debug.Log("puyoStatus.y=" + puyoStatus.y + "puyoStatus.dy=" + puyoStatus.dy);
-        if (y + 1 >= Config.stageRows || Stage.board[y + 1][x] != 0 || (y + dy + 1 >= 0 && (y + dy + 1 >= Config.stageRows
-        || Stage.board[y + dy + 1][x + dx] != 0)))
+        if (y + 1 >= Config.stageRows || stage.board[y + 1][x] != 0 || (y + dy + 1 >= 0 && (y + dy + 1 >= Config.stageRows
+        || stage.board[y + dy + 1][x + dx] != 0)))
         {
             isBlocked = true;
         }
@@ -186,13 +192,13 @@ public class Player : MonoBehaviour
                 // 下キーが押されていたら、得点を加算する
                 if (isDownPressed)
                 {
-                    scoreScript.addScore(1);
+                    score.addScore(1);
                 }
                 //ブロックの境を超えたので、目的地となるマスの下にブロックがあるか確認
                 y += 1;
                 puyoStatus.y = y;
-                if (y + 1 >= Config.stageRows || Stage.board[y + 1][x] != 0 || (y + dy + 1 >= 0 && (y + dy + 1 >= Config.
-                stageRows || Stage.board[y + dy + 1][x + dx] != 0)))
+                if (y + 1 >= Config.stageRows || stage.board[y + 1][x] != 0 || (y + dy + 1 >= 0 && (y + dy + 1 >= Config.
+                stageRows || stage.board[y + dy + 1][x + dx] != 0)))
                 {
                     isBlocked = true;
                 }
@@ -232,6 +238,7 @@ public class Player : MonoBehaviour
             //下ボタンを押していたら、groundFrameを増やす（接地時間が短くなる）
             if(isDownPressed) groundFrame += Config.addgroundWhileDown;
             Debug.Log("groundFrame="+groundFrame);
+
             //groundFrameの値が一定の値を超えたら、trueを返す（ぷよを固定する処理へ）
             if (groundFrame > Config.playerGroundFrame)
             {
@@ -242,9 +249,9 @@ public class Player : MonoBehaviour
         return false;
     }
 
-    public static string Playing(int frame)
+    public string playing(int frame)
     {
-        setPuyoPosition();
+        this.setPuyoPosition();
 
         //A・Bボタンがしばらく押されていなかったとき
         if (frame - firstClickFrame > Config.interval)
@@ -272,7 +279,7 @@ public class Player : MonoBehaviour
             if (rotation == 0)
             {
                 // 右から下に回す時には、自分の下か右下にブロックがあれば1個上に引き上げる。まず下を確認する
-                if (y + 2 < 0 || y + 2 >= Config.stageRows || Stage.board[y + 2][x] != 0)
+                if (y + 2 < 0 || y + 2 >= Config.stageRows || stage.board[y + 2][x] != 0)
                 {
                     if (y + 2 >= 0)
                     {
@@ -281,7 +288,7 @@ public class Player : MonoBehaviour
                     }
                 }
                 // 右下も確認する
-                if (y + 2 < 0 || y + 2 >= Config.stageRows || x + 1 < 0 || Stage.board[y + 2][x + 1] != 0)
+                if (y + 2 < 0 || y + 2 >= Config.stageRows || x + 1 < 0 || stage.board[y + 2][x + 1] != 0)
                 {
                     if (y + 2 >= 0)
                     {
@@ -317,7 +324,7 @@ public class Player : MonoBehaviour
             else if (rotation == 90)
             {
                 // 上から右に回すときに、右にブロックがあれば左に移動する必要があるのでまず確認する
-                if (y + 1 < 0 || x + 1 < 0 || x + 1 >= Config.stageCols || Stage.board[y + 1][x + 1] != 0)
+                if (y + 1 < 0 || x + 1 < 0 || x + 1 >= Config.stageCols || stage.board[y + 1][x + 1] != 0)
                 {
                     if (y + 1 >= 0)
                     {
@@ -328,7 +335,7 @@ public class Player : MonoBehaviour
                 // 左にずれる必要がある時、左にもブロックがあれば回転出来ないので確認する
                 if (cx == -1)
                 {
-                    if (y + 1 < 0 || x - 1 < 0 || y + 1 >= Config.stageRows || x - 1 >= Config.stageCols || Stage.
+                    if (y + 1 < 0 || x - 1 < 0 || y + 1 >= Config.stageRows || x - 1 >= Config.stageCols || stage.
                     board[y + 1][x - 1] != 0)
                     {
                         if (y + 1 >= 0)
@@ -336,7 +343,7 @@ public class Player : MonoBehaviour
                             // ブロックがある。回転出来なかった
                             canRotate = false;
 
-                            checkDoubleClick(frame);
+                            this.checkDoubleClick(frame);
                             
                         }
                     }
@@ -349,7 +356,7 @@ public class Player : MonoBehaviour
             else if (rotation == 270)
             {
                 // 下から左に回すときは、左にブロックがあれば右に移動する必要があるのでまず確認する
-                if (y + 1 < 0 || x - 1 < 0 || x - 1 >= Config.stageCols || Stage.board[y + 1][x - 1] != 0)
+                if (y + 1 < 0 || x - 1 < 0 || x - 1 >= Config.stageCols || stage.board[y + 1][x - 1] != 0)
                 {
                     if (y + 1 >= 0)
                     {
@@ -360,7 +367,7 @@ public class Player : MonoBehaviour
                 // 右にずれる必要がある時、右にもブロックがあれば回転出来ないので確認する
                 if (cx == 1)
                 {
-                    if (y + 1 < 0 || x + 1 < 0 || x + 1 >= Config.stageCols || Stage.board[y + 1][x + 1] != 0)
+                    if (y + 1 < 0 || x + 1 < 0 || x + 1 >= Config.stageCols || stage.board[y + 1][x + 1] != 0)
                     {
                         if (y + 1 >= 0)
                         {
@@ -368,7 +375,7 @@ public class Player : MonoBehaviour
                             canRotate = false;
                         }
 
-                        checkDoubleClick(frame);
+                        this.checkDoubleClick(frame);
                     }
                 }
             }
@@ -391,11 +398,13 @@ public class Player : MonoBehaviour
                     puyoStatus.y -= 1; //一つ上のマスに行く
                     puyoStatus.sceneY = (puyoStatus.y + 0.5f) * Config.puyoImgHeight;
                 }
+
                 // 回すことが出来るので、回転後の情報をセットして回転状態にする
                 rotateStartFrame = frame;
                 rotateBeforeLeft = x * Config.puyoImgHeight;
                 rotateAfterLeft = (x + cx) * Config.puyoImgHeight;
                 rotateFromRotation = puyoStatus.rotation;
+
                 // 次の状態を先に設定しておく
                 puyoStatus.x += cx;
                 int distRotation = (puyoStatus.rotation + (-90 + 360)) % 360;
@@ -427,7 +436,7 @@ public class Player : MonoBehaviour
             else if (rotation == 90)
             {
                 // 上から左に回すときに、左にブロックがあれば右に移動する必要があるのでまず確認する
-                if (y + 1 < 0 || x - 1 < 0 || x - 1 >= Config.stageCols || Stage.board[y + 1][x - 1] != 0)
+                if (y + 1 < 0 || x - 1 < 0 || x - 1 >= Config.stageCols || stage.board[y + 1][x - 1] != 0)
                 {
                     if (y + 1 >= 0)
                     {
@@ -438,7 +447,7 @@ public class Player : MonoBehaviour
                 // 右にずれる必要がある時、右にもブロックがあれば回転出来ないので確認する
                 if (cx == 1)
                 {
-                    if (y + 1 < 0 || x + 1 < 0 || y + 1 >= Config.stageRows || x + 1 >= Config.stageCols || Stage.
+                    if (y + 1 < 0 || x + 1 < 0 || y + 1 >= Config.stageRows || x + 1 >= Config.stageCols || stage.
                     board[y + 1][x + 1] != 0)
                     {
                         if (y + 1 >= 0)
@@ -447,14 +456,14 @@ public class Player : MonoBehaviour
                             canRotate = false;
                         }
 
-                        checkDoubleClick(frame);
+                        this.checkDoubleClick(frame);
                     }
                 }
             }
             else if (rotation == 180)
             {
                 // 左から下に回す時には、自分の下か左下にブロックがあれば1個上に引き上げる。まず下を確認する
-                if (y + 2 < 0 || y + 2 >= Config.stageRows || Stage.board[y + 2][x] != 0)
+                if (y + 2 < 0 || y + 2 >= Config.stageRows || stage.board[y + 2][x] != 0)
                 {
                     if (y + 2 >= 0)
                     {
@@ -463,7 +472,7 @@ public class Player : MonoBehaviour
                     }
                 }
                 // 左下も確認する
-                if (y + 2 < 0 || y + 2 >= Config.stageRows || x - 1 < 0 || Stage.board[y + 2][x - 1] != 0)
+                if (y + 2 < 0 || y + 2 >= Config.stageRows || x - 1 < 0 || stage.board[y + 2][x - 1] != 0)
                 {
                     if (y + 2 >= 0)
                     {
@@ -496,7 +505,7 @@ public class Player : MonoBehaviour
             else if (rotation == 270)
             {
                 // 下から右に回すときは、右にブロックがあれば左に移動する必要があるのでまず確認する
-                if (y + 1 < 0 || x + 1 < 0 || x + 1 >= Config.stageCols || Stage.board[y + 1][x + 1] != 0)
+                if (y + 1 < 0 || x + 1 < 0 || x + 1 >= Config.stageCols || stage.board[y + 1][x + 1] != 0)
                 {
                     if (y + 1 >= 0)
                     {
@@ -507,7 +516,7 @@ public class Player : MonoBehaviour
                 // 左にずれる必要がある時、左にもブロックがあれば回転出来ないので確認する
                 if (cx == -1)
                 {
-                    if (y + 1 < 0 || x - 1 < 0 || x - 1 >= Config.stageCols || Stage.board[y + 1][x - 1] != 0)
+                    if (y + 1 < 0 || x - 1 < 0 || x - 1 >= Config.stageCols || stage.board[y + 1][x - 1] != 0)
                     {
                         if (y + 1 >= 0)
                         {
@@ -515,7 +524,7 @@ public class Player : MonoBehaviour
                             canRotate = false;
                         }
 
-                        checkDoubleClick(frame);
+                        this.checkDoubleClick(frame);
                         
                     }
                 }
@@ -539,11 +548,13 @@ public class Player : MonoBehaviour
                     puyoStatus.y -= 1; //一つ上のマスに行く
                     puyoStatus.sceneY = (puyoStatus.y + 0.5f) * Config.puyoImgHeight;
                 }
+
                 // 回すことが出来るので、回転後の情報をセットして回転状態にする
                 rotateStartFrame = frame;
                 rotateBeforeLeft = x * Config.puyoImgHeight;
                 rotateAfterLeft = (x + cx) * Config.puyoImgHeight;
                 rotateFromRotation = puyoStatus.rotation;
+
                 // 次の状態を先に設定しておく
                 puyoStatus.x += cx;
                 int distRotation = (puyoStatus.rotation + 90) % 360;
@@ -568,14 +579,14 @@ public class Player : MonoBehaviour
             // その方向にブロックがないことを確認する
             // まずは自分の左右を確認
             bool canMove = true;
-            if (y < 0 || x + cx < 0 || x + cx >= Config.stageCols || Stage.board[y][x + cx] != 0)
+            if (y < 0 || x + cx < 0 || x + cx >= Config.stageCols || stage.board[y][x + cx] != 0)
             {
                 if (y >= 0)
                 {
                     canMove = false;
                 }
             }
-            if (my < 0 || mx + cx < 0 || mx + cx >= Config.stageCols || Stage.board[my][mx + cx] != 0)
+            if (my < 0 || mx + cx < 0 || mx + cx >= Config.stageCols || stage.board[my][mx + cx] != 0)
             {
                 if (my >= 0)
                 {
@@ -585,14 +596,14 @@ public class Player : MonoBehaviour
             // 接地していない場合は、さらに1個下のブロックの左右も確認する
             if (groundFrame == 0)
             {
-                if (y + 1 < 0 || x + cx < 0 || x + cx >= Config.stageCols || Stage.board[y + 1][x + cx] != 0)
+                if (y + 1 < 0 || x + cx < 0 || x + cx >= Config.stageCols || stage.board[y + 1][x + cx] != 0)
                 {
                     if (y + 1 >= 0)
                     {
                         canMove = false;
                     }
                 }
-                if (my + 1 < 0 || mx + cx < 0 || mx + cx >= Config.stageCols || Stage.board[my + 1][mx + cx] != 0)
+                if (my + 1 < 0 || mx + cx < 0 || mx + cx >= Config.stageCols || stage.board[my + 1][mx + cx] != 0)
                 {
                     if (my + 1 >= 0)
                     {
@@ -615,7 +626,7 @@ public class Player : MonoBehaviour
     }
 
     //ダブルクリックによってクイックターンを行うか確認
-    static void checkDoubleClick(int frame)
+    public void checkDoubleClick(int frame)
     {
         //まず、回転中なら新たにクイックターンは行わない。
         if(rotateFlag) return;
@@ -661,11 +672,11 @@ public class Player : MonoBehaviour
         }
     }
 
-    public static bool moving(int frame)
+    public bool moving(int frame)
     {
         float ratio = Mathf.Min(1, (frame - moveStartFrame) / Config.playerMoveFrame);
         puyoStatus.sceneX = ratio * (moveDestination - moveSource) + moveSource;
-        setPuyoPosition();
+        this.setPuyoPosition();
         if (ratio == 1)
         {
             //回転途中ならfalseを返す
@@ -675,10 +686,11 @@ public class Player : MonoBehaviour
         return true;
     }
 
-    public static bool rotating(int frame)
+    public bool rotating(int frame)
     {
         float ratio = Mathf.Min(1.0f, ((frame - rotateStartFrame) / Config.playerRotateFrame));
         puyoStatus.sceneX = (rotateAfterLeft - rotateBeforeLeft) * ratio + rotateBeforeLeft;
+
         if(rotateDirection == -1)
         {
             puyoStatus.rotation = rotateFromRotation + Mathf.FloorToInt(ratio * -90);
@@ -687,7 +699,9 @@ public class Player : MonoBehaviour
         {
             puyoStatus.rotation = rotateFromRotation + Mathf.FloorToInt(ratio * 90);
         }
-        setPuyoPosition();
+
+        this.setPuyoPosition();
+
         if (ratio == 1)
         {
             if(rotateDirection == -1)
@@ -704,7 +718,7 @@ public class Player : MonoBehaviour
     }
 
     //180度一気に回転
-    public static bool quickTurn(int frame)
+    public bool quickTurn(int frame)
     {
         float ratio = Mathf.Min(1.0f, ((frame - rotateStartFrame) / Config.playerRotateFrame));
         if (rotateDirection == -1)
@@ -717,7 +731,9 @@ public class Player : MonoBehaviour
             //左回転
             puyoStatus.rotation = rotateFromRotation + Mathf.FloorToInt(ratio * 180);
         }
-        setPuyoPosition();
+
+        this.setPuyoPosition();
+        
         if (ratio == 1)
         {
             //ぷよを180度回す（右・左は関係ない）
@@ -727,7 +743,7 @@ public class Player : MonoBehaviour
         return true;
     }
 
-    public static bool fix()
+    public bool fix()
     {
         // 現在のぷよをステージ上に配置する
         int x = puyoStatus.x;
@@ -758,18 +774,19 @@ public class Player : MonoBehaviour
             puyoStatus.rotation = (rotateFromRotation + 180) % 360;
         }
         
-        setPuyoPosition();
+        this.setPuyoPosition();
+
         if (y >= 0)
         {
            // 画面外のぷよは消してしまう
-            Stage.setPuyo(x, y, centerPuyo);
-            Stage.puyoCount++;
+            stage.setPuyo(x, y, centerPuyo);
+            stage.puyoCount++;
         }
         if (y + dy >= 0)
         {
             // 画面外のぷよは消してしまう
-            Stage.setPuyo(x + dx, y + dy, movablePuyo);
-            Stage.puyoCount++;
+            stage.setPuyo(x + dx, y + dy, movablePuyo);
+            stage.puyoCount++;
         }
         
         //おそらくぷよが設置するときのアニメーションが入る（ぶよんとなる）
@@ -788,29 +805,29 @@ public class Player : MonoBehaviour
 
         // まず自由落下を確認する
         // 下キーが押されていた場合、それ込みで自由落下させる
-        if (Falling(keyStatus.down))
+        if (this.falling(keyStatus.down))
         {
             // 落下が終わっていたら、ぷよを固定する
-            setPuyoPosition();
+            this.setPuyoPosition();
             return "fix";
         }
 
-        Playing(frame);
+        playing(frame);
 
         //rotatingがfalseを返すまで、rotating関数を動作させる
         if (rotateFlag)
         {
-            rotateFlag = rotating(frame);
+            rotateFlag = this.rotating(frame);
         }
         else if (quickTurnFlag)
         {
-            quickTurnFlag = quickTurn(frame);
+            quickTurnFlag = this.quickTurn(frame);
         }
 
         //movingがfalseを返すまで、moving関数を動作させる
         if (moveFlag)
         {
-            moveFlag = moving(frame);
+            moveFlag = this.moving(frame);
         }
 
         //fixを返す以外は、playing（プレイヤーが操作可能を返す）
@@ -818,22 +835,22 @@ public class Player : MonoBehaviour
     }
 
 
-    public static void batankyu()
+    public void batankyu()
     {
+        //上ボタンを押したらリロード
         if (keyStatus.up)
         {
             SceneManager.LoadScene(SceneManager.GetActiveScene().name);
         }
     }
 
-    // Start is called before the first frame update
     void Start()
     {
-        nextScript = gameObject.GetComponent<Next>();
-        scoreScript = gameObject.GetComponent<Score>();
+        next = gameObject.GetComponent<Next>();
+        score = gameObject.GetComponent<Score>();
+        stage = gameObject.GetComponent<stage>();
     }
 
-    // Update is called once per frame
     void Update()
     {
         // キーボードの入力を確認する

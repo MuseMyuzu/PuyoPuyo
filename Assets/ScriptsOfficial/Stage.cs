@@ -9,13 +9,15 @@ using System;
 //2021/05/09
 //アルルのキャラボイスを追加
 
+/// <summary>
+/// 落下中のぷよの状態を表すクラス
+/// </summary>
 public class fallingPuyoClass
 {
     public GameObject puyoObject;
     public int position;
     public int destination;
     public bool falling;
-    
 }
 
 public class CheckErase
@@ -34,31 +36,27 @@ public class PuyoInfo
 
 public class Stage : MonoBehaviour
 {
-    // static stageElement;
-    // static scoreElement;
-    // static zenkeshiImage;
-    public static int[][] board;
-    public static int puyoCount;
-    public static List<fallingPuyoClass> fallingPuyoList;  //動的配列
-    static int eraseStartFrame;
-    public static List<PuyoInfo> erasingPuyoInfoList = new List<PuyoInfo>();
+    public int[][] board;
+    public int puyoCount;
+    public List<fallingPuyoClass> fallingPuyoList;  //動的配列
+    private int eraseStartFrame;
+    public List<PuyoInfo> erasingPuyoInfoList = new List<PuyoInfo>();
 
-    static GameObject ZenkeshiObject;
+    private GameObject ZenkeshiObject;
     public GameObject pubZenkeshiPrefab;
-    static GameObject ZenkeshiPrefab;
-    static SpriteRenderer spRenderer;
+    private GameObject ZenkeshiPrefab;
+    private SpriteRenderer spRenderer;
 
     //キャラボイス用
-    static AudioSource audioSource;
+    private AudioSource audioSource;
     public AudioClip[] pubVoice;
-    static AudioClip[] voice;
+    private  AudioClip[] voice;
 
-    
+    Game game;    
 
-    public static void initialize()
+    public void initialize()
     {
         // メモリを準備する
-        
         board = new int[][]
         {
             new int[]{ 0, 0, 0, 0, 0, 0 },
@@ -80,17 +78,17 @@ public class Stage : MonoBehaviour
         for(int y = 0; y<Config.stageRows; y++) {
             int[] line;
             //board[y]のすべての要素が0以外ならばboardy=true、一つでも0があればfalse
-            bool boardy = true;
+            bool board_y = true;
             for (int i = 0; i < Config.stageCols; i++)
             {
                 if (board[y][i] == 0)
                 {
-                    boardy = false;
+                    board_y = false;
                     break;
                 }
             }
 
-            if (boardy)
+            if (board_y)
             {
                 line = board[y];
             }
@@ -102,7 +100,7 @@ public class Stage : MonoBehaviour
             for(int x = 0; x<Config.stageCols; x++) {
                 int puyo = line[x];
                 if(puyo >= 1 && puyo <= 5) {
-                    setPuyo(x, y, puyo);
+                    this.setPuyo(x, y, puyo);
                     puyoCount++;
                 } else {
                     line[x] = 0;
@@ -113,13 +111,13 @@ public class Stage : MonoBehaviour
     }
 
     // （画面と）メモリ（両方）に puyo をセットする
-    public static void setPuyo(int x, int y, int puyo)
+    public void setPuyo(int x, int y, int puyo)
     {
         board[y][x] = puyo;
     }
 
     // 自由落下をチェックする
-    public static bool checkFall()
+    public bool checkFall()
     {
         //fallingPuyoList.Length = 0;
         fallingPuyoList = new List<fallingPuyoClass>();
@@ -135,6 +133,7 @@ public class Stage : MonoBehaviour
                     // このマスにぷよがなければ次
                     continue;
                 }
+
                 if (board[y + 1][x]==0)
                 {
                     // このぷよは落ちるので、取り除く
@@ -158,6 +157,7 @@ public class Stage : MonoBehaviour
                             fallingPuyo.puyoObject = puyo;
                         }
                     }
+
                     fallingPuyo.position = y * Config.puyoImgHeight;
                     fallingPuyo.destination = dst * Config.puyoImgHeight;
                     fallingPuyo.falling = true;
@@ -171,7 +171,7 @@ public class Stage : MonoBehaviour
     }
 
     // 自由落下させる
-    public static bool fall()
+    public bool fall()
     {
         bool isFalling = false;
         foreach (fallingPuyoClass fallingPuyo in fallingPuyoList) {
@@ -203,7 +203,7 @@ public class Stage : MonoBehaviour
     }
     
     // 消せるかどうか判定する
-    public static CheckErase checkErase(int startFrame)
+    public CheckErase checkErase(int startFrame)
     {
         eraseStartFrame = startFrame;
         erasingPuyoInfoList.Clear();
@@ -317,7 +317,7 @@ public class Stage : MonoBehaviour
         return null;
     }
     // 消すアニメーションをする
-    public static bool erasing(int frame)
+    public bool erasing(int frame)
     {
         int elapsedFrame = frame - eraseStartFrame;
         float ratio = elapsedFrame / Config.eraseAnimationDuration;
@@ -331,7 +331,7 @@ public class Stage : MonoBehaviour
 
             //キャラボイスを鳴らす
             //連鎖数は、Gameスクリプトで計算した値を用いる
-            switch (Game.combinationCount)
+            switch (game.combinationCount)
             {
                 case 1: audioSource.PlayOneShot(voice[0]); break; //1連鎖
                 case 2: audioSource.PlayOneShot(voice[1]); break; //2連鎖
@@ -387,7 +387,7 @@ public class Stage : MonoBehaviour
         }
     }
 
-    public static void showZenkeshi()
+    public void showZenkeshi()
     {
         ZenkeshiObject = Instantiate(ZenkeshiPrefab) as GameObject;
         float startTime = DateTime.Now.Hour * 60 * 60 * 1000 + DateTime.Now.Minute * 60 * 1000 
@@ -404,7 +404,7 @@ public class Stage : MonoBehaviour
         }
     }
 
-    public static void hideZenkeshi()
+    public void hideZenkeshi()
     {
         //全消しの文字がないときは何もしない
         if (!ZenkeshiObject) return;
@@ -440,11 +440,8 @@ public class Stage : MonoBehaviour
             i++;
         }
         ZenkeshiPrefab = pubZenkeshiPrefab;
+
+        game = gameObject.GetComponent<Game>();
     }
 }
-
-/*
-Stage.fallingPuyoList = new List<PuyoInfo>;
-Stage.erasingPuyoInfoList = [];
-*/
 
