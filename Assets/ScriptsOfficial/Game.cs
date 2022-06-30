@@ -67,8 +67,8 @@ public class Game : MonoBehaviour
         {
             case "start":
                 //ネクスト、ネクネクを表示
-                next.OpeningDecidePuyoColor();
-                next.ShowNextPuyo();
+                next.decidePuyoColorOpening();
+                next.showNextPuyo();
                 // 最初は、もしかしたら空中にあるかもしれないぷよを自由落下させるところからスタート
                 mode = "checkFall";
                 break;

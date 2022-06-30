@@ -4,22 +4,31 @@ using UnityEngine;
 
 public class Next : MonoBehaviour
 {
-    public GameObject red, green, blue, yellow;
-    GameObject nextCenterPuyoObj, nextMovablePuyoObj, nextnextCenterPuyoObj, nextnextMovablePuyoObj;
-    public int nextCenterPuyo, nextMovablePuyo, nextnextCenterPuyo, nextnextMovablePuyo;
+    private GameObject red, green, blue, yellow;
+    private GameObject nextCenterPuyoObj, nextMovablePuyoObj, nextnextCenterPuyoObj, nextnextMovablePuyoObj;
+    public int nextCenterPuyo{get; set;}
+    public int nextMovablePuyo{get; set;}
+    public int nextnextCenterPuyo{get; set;}
+    public int nextnextMovablePuyo{get; set;}
 
-    //開幕のみネクスト、ネクネクの色の決め方が異なる
-    public void OpeningDecidePuyoColor()
+    /// <summary>
+    /// 開幕でネクストとネクネクの色を決定する
+    /// </summary>
+    public void decidePuyoColorOpening()
     {
         //最初は赤、緑、青の3色からのみ選ばれる（のちに改良の余地あり）
         int puyoColors = Mathf.Max(1, Mathf.Min(5, Config.puyoColors));
+        //ネクストとネクネクの色を決める
         nextCenterPuyo = Mathf.FloorToInt(UnityEngine.Random.value * (puyoColors - 1)) + 1;
         nextMovablePuyo = Mathf.FloorToInt(UnityEngine.Random.value * (puyoColors - 1)) + 1;
         nextnextCenterPuyo = Mathf.FloorToInt(UnityEngine.Random.value * (puyoColors-1)) + 1;
         nextnextMovablePuyo = Mathf.FloorToInt(UnityEngine.Random.value * (puyoColors-1)) + 1;
     }
 
-    public void DecidePuyoColor()
+    /// <summary>
+    /// 通常時、ネクストとネクネクの色を決定する
+    /// </summary>
+    public void decidePuyoColor()
     {
         int puyoColors = Mathf.Max(1, Mathf.Min(5, Config.puyoColors));
         //ネクストは一つ前のネクネクが移ってくる
@@ -30,7 +39,10 @@ public class Next : MonoBehaviour
         nextnextMovablePuyo = Mathf.FloorToInt(UnityEngine.Random.value * puyoColors) + 1;
     }
 
-    public void ShowNextPuyo()
+    /// <summary>
+    /// ネクスト、ネクネクの欄にぷよを表示する
+    /// </summary>
+    public void showNextPuyo()
     {
         //現在表示されているネクスト、ネクネクを消去
         GameObject[] nexts = GameObject.FindGameObjectsWithTag("next");
@@ -74,5 +86,12 @@ public class Next : MonoBehaviour
             case 4: nextnextMovablePuyoObj = Instantiate(yellow) as GameObject; break;
         }
         nextnextMovablePuyoObj.transform.position = new Vector3(320.0f, -150.0f, 0.0f);
+    }
+
+    void Start(){
+        this.red = Resources.Load("next_red") as GameObject;
+        this.green = Resources.Load("next_green") as GameObject;
+        this.blue = Resources.Load("next_blue") as GameObject;
+        this.yellow = Resources.Load("next_yellow") as GameObject;
     }
 }

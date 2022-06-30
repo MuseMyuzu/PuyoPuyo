@@ -114,8 +114,8 @@ public class Player : MonoBehaviour
         centerPuyo = next.nextCenterPuyo;
         movablePuyo = next.nextMovablePuyo;
         //次のネクスト、ネクネクの色を決めて表示
-        next.DecidePuyoColor();
-        next.ShowNextPuyo();
+        next.decidePuyoColor();
+        next.showNextPuyo();
 
         //軸ぷよ、子ぷよを生成（位置はまだ決まっていない）
         switch (centerPuyo)
