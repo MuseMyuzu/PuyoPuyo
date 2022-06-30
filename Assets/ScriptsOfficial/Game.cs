@@ -5,6 +5,8 @@ using UnityEngine.UI;
 
 //2022/06/27
 //Config以外のstaticを基本的に排除する。
+//2022/06/30
+//staticを消し、publicをprivateにする作業が一旦終了した
 
 /// <summary>
 /// ゲームの進行を制御するクラス
