@@ -66,10 +66,10 @@ public class Player : MonoBehaviour
     private int centerPuyo;           //軸ぷよの色（1:赤、2:緑、3:青、4:黄）
     private int movablePuyo;          //子ぷよの色
 
-    public GameObject redPrefab;
-    public GameObject greenPrefab;
-    public GameObject bluePrefab;
-    public GameObject yellowPrefab;
+    private GameObject redPrefab;
+    private GameObject greenPrefab;
+    private GameObject bluePrefab;
+    private GameObject yellowPrefab;
 
     private PuyoStatus puyoStatus = new PuyoStatus();
     private int groundFrame;          //接地している時間
@@ -849,6 +849,11 @@ public class Player : MonoBehaviour
         this.next = gameObject.GetComponent<Next>();
         this.score = gameObject.GetComponent<Score>();
         this.stage = gameObject.GetComponent<Stage>();
+
+        this.redPrefab = Resources.Load("red_Prefab") as GameObject;
+        this.greenPrefab = Resources.Load("green_Prefab") as GameObject;
+        this.bluePrefab = Resources.Load("blue_Prefab") as GameObject;
+        this.yellowPrefab = Resources.Load("yellow_Prefab") as GameObject;
     }
 
     void Update()

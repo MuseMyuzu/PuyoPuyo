@@ -4,9 +4,9 @@ using UnityEngine;
 
 public class PuyoImage : MonoBehaviour
 {
-    public float gameOverFrame;
+    private float gameOverFrame;
     private GameObject batankyuObject;
-    public GameObject batankyuPrefab;
+    private GameObject batankyuPrefab;
 
     public void initialize()
     {
@@ -27,5 +27,10 @@ public class PuyoImage : MonoBehaviour
         float y = Mathf.Cos(Mathf.PI + ratio * Mathf.PI * 2) * Config.puyoImgHeight * Config.stageRows / 4 + Config.
             puyoImgHeight * Config.stageRows / 2;
         batankyuObject.gameObject.transform.position = new Vector3(x+100, -y, -1);
+    }
+
+    private void Start() {
+        //ばたんきゅーのPrefabを取得
+        batankyuPrefab = Resources.Load("batankyuPrefab") as GameObject;
     }
 }
