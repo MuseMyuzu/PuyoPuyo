@@ -36,19 +36,19 @@ public class PuyoInfo
 
 public class Stage : MonoBehaviour
 {
-    public int[][] board;
-    public int puyoCount;
-    public List<fallingPuyoClass> fallingPuyoList;  //動的配列
+    public int[][] board{get; set;}
+    public int puyoCount{get; set;}
+    public List<fallingPuyoClass> fallingPuyoList{get; set;}  //動的配列
     private int eraseStartFrame;
-    public List<PuyoInfo> erasingPuyoInfoList = new List<PuyoInfo>();
+    public List<PuyoInfo> erasingPuyoInfoList{get; set;}
 
-    private GameObject ZenkeshiObject;
-    public GameObject ZenkeshiPrefab;
+    private GameObject zenkeshiObject;
+    private GameObject zenkeshiPrefab;
     private SpriteRenderer spRenderer;
 
     //キャラボイス用
     private AudioSource audioSource;
-    public AudioClip[] voice;
+    private AudioClip[] voice;
 
     private Game game;    
 
@@ -387,7 +387,7 @@ public class Stage : MonoBehaviour
 
     public void showZenkeshi()
     {
-        ZenkeshiObject = Instantiate(ZenkeshiPrefab) as GameObject;
+        zenkeshiObject = Instantiate(zenkeshiPrefab) as GameObject;
         float startTime = DateTime.Now.Hour * 60 * 60 * 1000 + DateTime.Now.Minute * 60 * 1000 
             +DateTime.Now.Second * 1000 + DateTime.Now.Millisecond;
         float startTop = Config.puyoImgHeight * Config.stageRows;
@@ -397,7 +397,7 @@ public class Stage : MonoBehaviour
         {
             ratio = Mathf.Min((DateTime.Now.Hour * 60 * 60 * 1000 + DateTime.Now.Minute * 60 * 1000
                 + DateTime.Now.Second * 1000 + DateTime.Now.Millisecond - startTime) / Config.zenkeshiDuration, 1);
-            ZenkeshiObject.gameObject.transform.position = new Vector3(100.0f, (startTop - endTop) * ratio - startTop, 1.0f);
+            zenkeshiObject.gameObject.transform.position = new Vector3(100.0f, (startTop - endTop) * ratio - startTop, 1.0f);
             if (ratio >= 1) break;
         }
     }
@@ -405,12 +405,12 @@ public class Stage : MonoBehaviour
     public void hideZenkeshi()
     {
         //全消しの文字がないときは何もしない
-        if (!ZenkeshiObject) return;
+        if (!zenkeshiObject) return;
 
         // 全消しを消去する
         float startTime = DateTime.Now.Hour * 60 * 60 * 1000 + DateTime.Now.Minute * 60 * 1000
             + DateTime.Now.Second * 1000 + DateTime.Now.Millisecond;
-        spRenderer = ZenkeshiObject.GetComponent<SpriteRenderer>();
+        spRenderer = zenkeshiObject.GetComponent<SpriteRenderer>();
 
         while (true) { 
             float ratio = Mathf.Min((DateTime.Now.Hour * 60 * 60 * 1000 + DateTime.Now.Minute * 60 * 1000
@@ -421,7 +421,7 @@ public class Stage : MonoBehaviour
 
             if(ratio >= 1)
             {
-                Destroy(ZenkeshiObject);
+                Destroy(zenkeshiObject);
                 break;
             }
         }
@@ -434,6 +434,12 @@ public class Stage : MonoBehaviour
         audioSource = GetComponent<AudioSource>();
 
         this.game = gameObject.GetComponent<Game>();
+
+        this.zenkeshiPrefab = Resources.Load("zenkeshiPrefab") as GameObject;
+
+        this.erasingPuyoInfoList = new List<PuyoInfo>();
+
+        this.voice = Resources.LoadAll<AudioClip>("voice/");
     }
 }
 
