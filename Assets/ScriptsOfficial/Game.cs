@@ -6,16 +6,25 @@ using UnityEngine.UI;
 //2022/06/27
 //Config以外のstaticを基本的に排除する。
 
+/// <summary>
+/// ゲームの進行を制御するクラス
+/// </summary>
 public class Game : MonoBehaviour
 {
-    string mode;          // ゲームの現在の「モード」
-    string previous_mode; //一つ前のモード
-    int frame;   // ゲームの現在フレーム（1/60秒ごとに1追加される）
-    public int combinationCount = 0; // 何連鎖かどうか
-    bool loopFrag = false;    //ループを開始させるフラグ
+    private string mode;          // ゲームの現在の「モード」
+    private string previous_mode; //一つ前のモード
+    private int frame;   // ゲームの現在フレーム（1/60秒ごとに1追加される）
+    private bool loopFrag = false;    //ループを開始させるフラグ
+    private int _combinationCount = 0; // 何連鎖かどうか
+    //combinationCountのsetter, getter
+    public int combinationCount 
+    { 
+        get { return _combinationCount; } 
+        set { if(value >= 0) _combinationCount = value; }
+    } 
     //連鎖数を表示させるためのテキスト
-    public GameObject rensaObj;
-    Text rensaText;
+    private GameObject rensaObj;
+    private Text rensaText;
 
     private Next next;
     private Player player;
@@ -91,7 +100,7 @@ public class Game : MonoBehaviour
                     //消せるぷよがある
                     mode = "erasing";
                     //連鎖数を1増やす
-                    combinationCount++;
+                    combinationCount += 1;
                     // 得点を計算する
                     score.calculateScore(combinationCount, eraseInfo.piece, eraseInfo.color);
                     //表示させる連鎖数の変更
@@ -164,6 +173,7 @@ public class Game : MonoBehaviour
     //起動されたときに呼ばれる関数を登録する
     void Start()
     {
+        this.rensaObj = GameObject.Find("Rensa");
         // まずステージを整える
         this.player    = gameObject.GetComponent<Player>();
         this.next      = gameObject.GetComponent<Next>();

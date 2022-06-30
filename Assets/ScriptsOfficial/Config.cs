@@ -4,6 +4,9 @@ using UnityEngine;
 
 //参考：https://puyo-camp.jp/posts/71019
 
+/// <summary>
+/// 設定値（定数）を定義するクラス
+/// </summary>
 public class Config : MonoBehaviour
 {
     public static int puyoImgWidth = 40; // ぷよぷよ画像の幅
@@ -35,12 +38,8 @@ public class Config : MonoBehaviour
     public static int addgroundWhileDown = 5; //下ボタンを押しているとき、groundFrameに追加で加算する量
     public static int interval = 10; //ダブルクリックのクリック間の時間
     
-    // Start is called before the first frame update
     void Start()
     {
-        /*
-        puyoImgHeight = (Screen.height - fontHeight) / stageRows;
-        puyoImgWidth = puyoImgHeight;
-        */
+        
     }
 }
