@@ -22,10 +22,12 @@ public class Game : MonoBehaviour
         get { return _combinationCount; } 
         set { if(value >= 0) _combinationCount = value; }
     } 
+
     //連鎖数を表示させるためのテキスト
     private GameObject rensaObj;
     private Text rensaText;
 
+    //スクリプト
     private Next next;
     private Player player;
     private PuyoImage puyoImage;
