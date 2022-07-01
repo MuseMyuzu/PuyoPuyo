@@ -64,6 +64,10 @@ public class Score : MonoBehaviour
         Debug.Log("rensa=" + rensa + " piece=" + piece + " color=" + color + " score=" + score);
     }
 
+    /// <summary>
+    /// addScoreの分だけスコアを加算する
+    /// </summary>
+    /// <param name="addScore">追加するスコア</param>
     public void addScore(int addScore)
     {
         score += addScore;

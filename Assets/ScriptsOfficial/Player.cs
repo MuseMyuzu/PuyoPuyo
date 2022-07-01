@@ -151,7 +151,9 @@ public class Player : MonoBehaviour
         return true;
     }
 
-    //ぷよを描画（ゲームシーン上に配置）
+    /// <summary>
+    /// sceneX, sceneYを使ってぷよを描画（ゲームシーン上に配置）
+    /// </summary>
     public void setPuyoPosition()
     {
         //軸ぷよを描画（移動してくる）
@@ -812,7 +814,7 @@ public class Player : MonoBehaviour
             return "fix";
         }
 
-        playing(frame);
+        this.playing(frame);
 
         //rotatingがfalseを返すまで、rotating関数を動作させる
         if (rotateFlag)

@@ -13,13 +13,20 @@ public class PuyoImage : MonoBehaviour
         
     }
 
-
+    /// <summary>
+    /// PrefabからばたんきゅーのObjectを生成
+    /// </summary>
+    /// <param name="frame"></param>
     public void prepareBatankyu(int frame)
     {
         gameOverFrame = Mathf.FloorToInt(frame);
         batankyuObject = Instantiate(batankyuPrefab) as GameObject;
     }
 
+    /// <summary>
+    /// ばたんきゅーのアニメーションを行う
+    /// </summary>
+    /// <param name="frame"></param>
     public void batankyu(int frame)
     {
         float ratio = (frame - gameOverFrame) / Config.gameOverFrame;
