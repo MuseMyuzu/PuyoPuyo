@@ -57,7 +57,7 @@ public class Game : MonoBehaviour
     {
         //フレームレートを60FPSに固定
         Application.targetFrameRate = 60;
-        //現在のモードと1フレーム前のモードが違ったら出力（モードが変化したとき）
+        //現在のモードと1フレーム前のモードが違ったら現在モードを出力（モードが変化したとき）
         if(previous_mode != mode)
         {
             Debug.Log("mode=" + mode);
@@ -111,6 +111,7 @@ public class Game : MonoBehaviour
                     rensaText = rensaObj.GetComponent<Text>();
                     rensaText.text = combinationCount.ToString();
 
+                    //全消しオブジェクトがあれば消す
                     stage.hideZenkeshi();
                 }
                 else
@@ -136,6 +137,7 @@ public class Game : MonoBehaviour
                 }
                 break;
             case "newPuyo":
+                //新しいぷよを作成する
                 if (!player.createNewPuyo())
                 {
                     // 新しい操作用ぷよを作成出来なかったら、ゲームオーバー
@@ -149,13 +151,13 @@ public class Game : MonoBehaviour
                 break;
             case "playing":
                 // プレイヤーが操作する
-                string action = player.PlayMoveRotate(frame);
+                string action = player.playMoveRotate(frame);
                 mode = action; // 'playing' 'fix' のどれかが帰ってくる
                 break;
             case "fix":
                 // 現在の位置でぷよを固定する
                 // fixの状態でしばらく待つ
-                if(player.fix()){
+                if(player.fix(frame)){
                     // 固定したら、まず自由落下を確認する
                     mode = "checkFall";
                 }

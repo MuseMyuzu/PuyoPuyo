@@ -86,7 +86,8 @@ public class Player : MonoBehaviour
     private bool rotateFlag = false; //ぷよが回転をしている最中ならtrue
     private bool quickTurnFlag = false; //ぷよが180度回転をしている最中ならtrue
     private int firstClickFrame = 0; //ダブルクリックの際、一回目にクリックしたフレーム
-    private int fixingFrame = 0; //fix関数の中に滞在しているフレーム数
+    private int fixingFrame = 0;
+    private int fixStartFrame; 
 
     private Next next;
     private Score score;
@@ -263,7 +264,7 @@ public class Player : MonoBehaviour
 
         
         //ぷよが回転していないときに、Aボタンが押されたら
-        if (Input.GetButtonDown("A") && !rotateFlag)
+        if (Input.GetButtonDown("A") && (!rotateFlag || !quickTurnFlag))
         {
             // 回転を確認する
             // 回せるかどうかは後で確認。まわすぞ
@@ -417,7 +418,7 @@ public class Player : MonoBehaviour
                 rotateFlag = true;
             }
         }
-        else if (Input.GetButtonDown("B") && !rotateFlag)
+        else if (Input.GetButtonDown("B") && (!rotateFlag || !quickTurnFlag))
         {
             // 回転を確認する
             // 回せるかどうかは後で確認。まわすぞ
@@ -745,18 +746,20 @@ public class Player : MonoBehaviour
         return true;
     }
 
-    public bool fix()
+    public bool fix(int frame)
     {
         // 現在のぷよをステージ上に配置する
         int x = puyoStatus.x;
         int y = puyoStatus.y;
         int dx = puyoStatus.dx;
         int dy = puyoStatus.dy;
+
         //20210910追加
         //もしかしたら、ぷよオブジェクトがマスとマスの間にあるかもしれないので、
         //ぷよオブジェクトをマスの中に配置し直す
         puyoStatus.sceneX = x * Config.puyoImgWidth;
         puyoStatus.sceneY = y * Config.puyoImgHeight;
+
         //もしまだ回転中なのにぷよを固定しようとしたら、
         //回転後の情報をもとにぷよを固定する
         if (rotateFlag)
@@ -770,6 +773,7 @@ public class Player : MonoBehaviour
                 puyoStatus.rotation = (rotateFromRotation + 90) % 360;
             }
         }
+
         if(quickTurnFlag)
         {
             //ぷよを180度回す（右・左は関係ない）
@@ -791,7 +795,19 @@ public class Player : MonoBehaviour
             stage.puyoCount++;
         }
         
-        //おそらくぷよが設置するときのアニメーションが入る（ぶよんとなる）
+        //ぷよが設置するときのアニメーション（ぶよんとなる）（もう少し厳密なアニメーションが必要）
+        /*
+        float ratio = Mathf.Min(1, (frame - moveStartFrame) / Config.playerMoveFrame);
+        puyoStatus.sceneX = ratio * (moveDestination - moveSource) + moveSource;
+        this.setPuyoPosition();
+        if (ratio == 1)
+        {
+            //回転途中ならfalseを返す
+            return false;
+        }
+        //回転が終了したらtrueを返す
+        return true;
+        */
 
         //しばらくfix関数にとどまる
         fixingFrame++;
@@ -802,7 +818,7 @@ public class Player : MonoBehaviour
         return false;
     }
 
-    public string PlayMoveRotate(int frame)
+    public string playMoveRotate(int frame)
     {
 
         // まず自由落下を確認する
