@@ -264,7 +264,7 @@ public class Player : MonoBehaviour
 
         
         //ぷよが回転していないときに、Aボタンが押されたら
-        if (Input.GetButtonDown("A") && (!rotateFlag || !quickTurnFlag))
+        if (Input.GetButtonDown("A") && !(rotateFlag || quickTurnFlag))
         {
             // 回転を確認する
             // 回せるかどうかは後で確認。まわすぞ
@@ -418,7 +418,7 @@ public class Player : MonoBehaviour
                 rotateFlag = true;
             }
         }
-        else if (Input.GetButtonDown("B") && (!rotateFlag || !quickTurnFlag))
+        else if (Input.GetButtonDown("B") && !(rotateFlag || quickTurnFlag))
         {
             // 回転を確認する
             // 回せるかどうかは後で確認。まわすぞ
