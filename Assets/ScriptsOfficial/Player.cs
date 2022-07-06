@@ -174,7 +174,6 @@ public class Player : MonoBehaviour
         int y = puyoStatus.y;
         int dx = puyoStatus.dx;
         int dy = puyoStatus.dy;
-        Debug.Log("puyoStatus.y=" + puyoStatus.y + "puyoStatus.dy=" + puyoStatus.dy);
         if (y + 1 >= Config.stageRows || stage.board[y + 1][x] != 0 || (y + dy + 1 >= 0 && (y + dy + 1 >= Config.stageRows
         || stage.board[y + dy + 1][x + dx] != 0)))
         {
@@ -200,6 +199,9 @@ public class Player : MonoBehaviour
                 //ブロックの境を超えたので、目的地となるマスの下にブロックがあるか確認
                 y += 1;
                 puyoStatus.y = y;
+                //デバッグ
+                Debug.Log("puyoStatus.x="+puyoStatus.x+" puyoStatus.dx="
+                +puyoStatus.dx+" puyoStatus.y=" + puyoStatus.y + " puyoStatus.dy=" + puyoStatus.dy);
                 if (y + 1 >= Config.stageRows || stage.board[y + 1][x] != 0 || (y + dy + 1 >= 0 && (y + dy + 1 >= Config.
                 stageRows || stage.board[y + dy + 1][x + dx] != 0)))
                 {
