@@ -264,9 +264,10 @@ public class Player : MonoBehaviour
             firstClickFrame = 0;
         }
 
-        
-        //ぷよが回転していないときに、Aボタンが押されたら
-        if (Input.GetButtonDown("A") && !(rotateFlag || quickTurnFlag))
+        bool pressA = Input.GetButtonDown("A");
+        bool pressB = Input.GetButtonDown("B");
+        //ぷよが回転していないときに、AまたはBボタンが押されたら
+        if((pressA || pressB) && !(rotateFlag || quickTurnFlag))
         {
             // 回転を確認する
             // 回せるかどうかは後で確認。まわすぞ
@@ -280,73 +281,216 @@ public class Player : MonoBehaviour
             int cx = 0;
             int cy = 0;
             //右回転
-            rotateDirection = -1;
+            if(pressA) rotateDirection = -1;
+            //左回転
+            if(pressB) rotateDirection = 1;
+
             if (rotation == 0)
             {
-                // 右から下に回す時には、自分の下か右下にブロックがあれば1個上に引き上げる。まず下を確認する
-                if (y + 2 < 0 || y + 2 >= Config.stageRows || stage.board[y + 2][x] != 0)
+                if(rotateDirection == -1)
                 {
-                    if (y + 2 >= 0)
+                    // 右から下に回す時には、自分の下か右下にブロックがあれば1個上に引き上げる。まず下を確認する
+                    if (y + 2 < 0 || y + 2 >= Config.stageRows || stage.board[y + 2][x] != 0)
                     {
-                        // ブロックがある。上に引き上げる
-                        cy = -1;
+                        if (y + 2 >= 0)
+                        {
+                            // ブロックがある。上に引き上げる
+                            cy = -1;
+                        }
                     }
-                }
-                // 右下も確認する
-                if (y + 2 < 0 || y + 2 >= Config.stageRows || x + 1 < 0 || stage.board[y + 2][x + 1] != 0)
-                {
-                    if (y + 2 >= 0)
+                    // 右下も確認する
+                    if (y + 2 < 0 || y + 2 >= Config.stageRows || x + 1 < 0 || stage.board[y + 2][x + 1] != 0)
                     {
-                        // ブロックがある。上に引き上げる
-                        cy = -1;
-                    }
-                }
-                
-                if (cy == -1)
-                {
-                    //上に引き上げる必要がある時、軸ぷよが14段目に行くときは回転出来ないので確認する
-                    if (y == 0)
-                    {
-                        //回転出来ない
-                        canRotate = false;
+                        if (y + 2 >= 0)
+                        {
+                            // ブロックがある。上に引き上げる
+                            cy = -1;
+                        }
                     }
                     
-                    //落下中のぷよが、目的地のマスよりも出発地のマスの方に近いときは、1.5段くらい上げる
-                    if (Mathf.FloorToInt(puyoStatus.sceneY / Config.puyoImgHeight * 10) % 10 == 0)
+                    if (cy == -1)
                     {
-                        //ぷよがブロックの境を超えていないときは何もしない。
-                        //ぷよがマスぴったりにいるかの座標の精度は、小数第一位まで。（if文では小数第一位が0か確認）
-                    }
-                    else if (Mathf.FloorToInt(puyoStatus.sceneY / Config.puyoImgHeight * 10) % 10 <= 5)
-                    {
-                        //小数第一位が1～5だったら1.5段くらい上げる
-                        cy = -2; //-2という数字に特に意味はない。
+                        //上に引き上げる必要がある時、軸ぷよが14段目に行くときは回転出来ないので確認する
+                        if (y == 0)
+                        {
+                            //回転出来ない
+                            canRotate = false;
+                        }
+                        
+                        //落下中のぷよが、目的地のマスよりも出発地のマスの方に近いときは、1.5段くらい上げる
+                        if (Mathf.FloorToInt(puyoStatus.sceneY / Config.puyoImgHeight * 10) % 10 == 0)
+                        {
+                            //ぷよがブロックの境を超えていないときは何もしない。
+                            //ぷよがマスぴったりにいるかの座標の精度は、小数第一位まで。（if文では小数第一位が0か確認）
+                        }
+                        else if (Mathf.FloorToInt(puyoStatus.sceneY / Config.puyoImgHeight * 10) % 10 <= 5)
+                        {
+                            //小数第一位が1～5だったら1.5段くらい上げる
+                            cy = -2; //-2という数字に特に意味はない。
+                        }
                     }
                 }
-
-                
+                else if(rotateDirection == 1)
+                {
+                    // 右から上には100% 確実に回せる。何もしない
+                }
             }
             else if (rotation == 90)
             {
-                // 上から右に回すときに、右にブロックがあれば左に移動する必要があるのでまず確認する
-                if (y + 1 < 0 || x + 1 < 0 || x + 1 >= Config.stageCols || stage.board[y + 1][x + 1] != 0)
+                if(rotateDirection == -1)
                 {
-                    if (y + 1 >= 0)
-                    {
-                        // ブロックがある。左に1個ずれる
-                        cx = -1;
-                    }
-                }
-                // 左にずれる必要がある時、左にもブロックがあれば回転出来ないので確認する
-                if (cx == -1)
-                {
-                    if (y + 1 < 0 || x - 1 < 0 || y + 1 >= Config.stageRows || x - 1 >= Config.stageCols || stage.
-                    board[y + 1][x - 1] != 0)
+                    // 上から右に回すときに、右にブロックがあれば左に移動する必要があるのでまず確認する
+                    if (y + 1 < 0 || x + 1 < 0 || x + 1 >= Config.stageCols || stage.board[y + 1][x + 1] != 0)
                     {
                         if (y + 1 >= 0)
                         {
-                            // ブロックがある。回転出来なかった
+                            // ブロックがある。左に1個ずれる
+                            cx = -1;
+                        }
+                    }
+                    // 左にずれる必要がある時、左にもブロックがあれば回転出来ないので確認する
+                    if (cx == -1)
+                    {
+                        if (y + 1 < 0 || x - 1 < 0 || y + 1 >= Config.stageRows || x - 1 >= Config.stageCols || stage.
+                        board[y + 1][x - 1] != 0)
+                        {
+                            if (y + 1 >= 0)
+                            {
+                                // ブロックがある。回転出来なかった
+                                canRotate = false;
+
+                                this.checkDoubleClick(frame);
+                                
+                            }
+                        }
+                    }
+                }
+                else if(rotateDirection == 1)
+                {
+                    // 上から左に回すときに、左にブロックがあれば右に移動する必要があるのでまず確認する
+                    if (y + 1 < 0 || x - 1 < 0 || x - 1 >= Config.stageCols || stage.board[y + 1][x - 1] != 0)
+                    {
+                        if (y + 1 >= 0)
+                        {
+                            // ブロックがある。右に1個ずれる
+                            cx = 1;
+                        }
+                    }
+                    // 右にずれる必要がある時、右にもブロックがあれば回転出来ないので確認する
+                    if (cx == 1)
+                    {
+                        if (y + 1 < 0 || x + 1 < 0 || y + 1 >= Config.stageRows || x + 1 >= Config.stageCols || stage.
+                        board[y + 1][x + 1] != 0)
+                        {
+                            if (y + 1 >= 0)
+                            {
+                                // ブロックがある。回転出来なかった
+                                canRotate = false;
+                            }
+
+                            this.checkDoubleClick(frame);
+                        }
+                    }
+                }
+            }
+            else if (rotation == 180)
+            {
+                if(rotateDirection == -1)
+                {
+                    // 左から上には100% 確実に回せる。何もしない
+                }
+                else if(rotateDirection == 1)
+                {
+                    // 左から下に回す時には、自分の下か左下にブロックがあれば1個上に引き上げる。まず下を確認する
+                    if (y + 2 < 0 || y + 2 >= Config.stageRows || stage.board[y + 2][x] != 0)
+                    {
+                        if (y + 2 >= 0)
+                        {
+                            // ブロックがある。上に引き上げる
+                            cy = -1;
+                        }
+                    }
+                    // 左下も確認する
+                    if (y + 2 < 0 || y + 2 >= Config.stageRows || x - 1 < 0 || stage.board[y + 2][x - 1] != 0)
+                    {
+                        if (y + 2 >= 0)
+                        {
+                            // ブロックがある。上に引き上げる
+                            cy = -1;
+                        }
+                    }
+                    //上に引き上げる必要がある時、軸ぷよが14段目に行くときは回転出来ないので確認する
+                    if (cy == -1)
+                    {
+                        if (y == 0)
+                        {
+                            //回転出来ない
                             canRotate = false;
+                        }
+
+                        //落下中のぷよが、目的地のマスよりも出発地のマスの方に近いときは、1.5段くらい上げる
+                        if (Mathf.FloorToInt(puyoStatus.sceneY / Config.puyoImgHeight * 10) % 10 == 0)
+                        {
+                            //ぷよがブロックの境を超えていないときは何もしない。
+                            //ぷよがマスぴったりにいるかの座標の精度は、小数第一位まで。（if文では小数第一位が0か確認）
+                        }
+                        else if (Mathf.FloorToInt(puyoStatus.sceneY / Config.puyoImgHeight * 10) % 10 <= 5)
+                        {
+                            //小数第一位が1～5だったら1.5段くらい上げる
+                            cy = -2; //-2という数字に特に意味はない。
+                        }
+                    }
+                }
+            }
+            else if (rotation == 270)
+            {
+                if(rotateDirection == -1)
+                {
+                    // 下から左に回すときは、左にブロックがあれば右に移動する必要があるのでまず確認する
+                    if (y + 1 < 0 || x - 1 < 0 || x - 1 >= Config.stageCols || stage.board[y + 1][x - 1] != 0)
+                    {
+                        if (y + 1 >= 0)
+                        {
+                            // ブロックがある。右に1個ずれる
+                            cx = 1;
+                        }
+                    }
+                    // 右にずれる必要がある時、右にもブロックがあれば回転出来ないので確認する
+                    if (cx == 1)
+                    {
+                        if (y + 1 < 0 || x + 1 < 0 || x + 1 >= Config.stageCols || stage.board[y + 1][x + 1] != 0)
+                        {
+                            if (y + 1 >= 0)
+                            {
+                                // ブロックがある。回転出来なかった
+                                canRotate = false;
+                            }
+
+                            this.checkDoubleClick(frame);
+                        }
+                    }
+                }
+                else if(rotateDirection == 1)
+                {
+                    // 下から右に回すときは、右にブロックがあれば左に移動する必要があるのでまず確認する
+                    if (y + 1 < 0 || x + 1 < 0 || x + 1 >= Config.stageCols || stage.board[y + 1][x + 1] != 0)
+                    {
+                        if (y + 1 >= 0)
+                        {
+                            // ブロックがある。左に1個ずれる
+                            cx = -1;
+                        }
+                    }
+                    // 左にずれる必要がある時、左にもブロックがあれば回転出来ないので確認する
+                    if (cx == -1)
+                    {
+                        if (y + 1 < 0 || x - 1 < 0 || x - 1 >= Config.stageCols || stage.board[y + 1][x - 1] != 0)
+                        {
+                            if (y + 1 >= 0)
+                            {
+                                // ブロックがある。回転出来なかった
+                                canRotate = false;
+                            }
 
                             this.checkDoubleClick(frame);
                             
@@ -354,36 +498,7 @@ public class Player : MonoBehaviour
                     }
                 }
             }
-            else if (rotation == 180)
-            {
-                // 左から上には100% 確実に回せる。何もしない
-            }
-            else if (rotation == 270)
-            {
-                // 下から左に回すときは、左にブロックがあれば右に移動する必要があるのでまず確認する
-                if (y + 1 < 0 || x - 1 < 0 || x - 1 >= Config.stageCols || stage.board[y + 1][x - 1] != 0)
-                {
-                    if (y + 1 >= 0)
-                    {
-                        // ブロックがある。右に1個ずれる
-                        cx = 1;
-                    }
-                }
-                // 右にずれる必要がある時、右にもブロックがあれば回転出来ないので確認する
-                if (cx == 1)
-                {
-                    if (y + 1 < 0 || x + 1 < 0 || x + 1 >= Config.stageCols || stage.board[y + 1][x + 1] != 0)
-                    {
-                        if (y + 1 >= 0)
-                        {
-                            // ブロックがある。回転出来なかった
-                            canRotate = false;
-                        }
 
-                        this.checkDoubleClick(frame);
-                    }
-                }
-            }
             if (canRotate)
             {
                 // 上に移動する必要があるときは、一気にあげてしまう
@@ -412,158 +527,9 @@ public class Player : MonoBehaviour
 
                 // 次の状態を先に設定しておく
                 puyoStatus.x += cx;
-                int distRotation = (puyoStatus.rotation + (-90 + 360)) % 360;
+                //左回転 → rotation+(-90+360), 右回転 → rptation+90
+                int distRotation = (puyoStatus.rotation + (-90*rotateDirection + 180)) % 360;
                 var dCombiOrigin = new int[4][]{ new int[2]{ 1, 0 }, new int[2]{ 0, -1 }, new int[2]{ -1, 0 }, new int[2]{ 0, 1 } };
-                int[] dCombi = dCombiOrigin[distRotation / 90];
-                puyoStatus.dx = dCombi[0];
-                puyoStatus.dy = dCombi[1];
-                rotateFlag = true;
-            }
-        }
-        else if (Input.GetButtonDown("B") && !(rotateFlag || quickTurnFlag))
-        {
-            // 回転を確認する
-            // 回せるかどうかは後で確認。まわすぞ
-            int x = puyoStatus.x;
-            int y = puyoStatus.y;
-            int mx = x + puyoStatus.dx;
-            int my = y + puyoStatus.dy;
-            int rotation = puyoStatus.rotation;
-            bool canRotate = true;
-            int cx = 0;
-            int cy = 0;
-            //左回転
-            rotateDirection = 1;
-            if (rotation == 0)
-            {
-                // 右から上には100% 確実に回せる。何もしない
-            }
-            else if (rotation == 90)
-            {
-                // 上から左に回すときに、左にブロックがあれば右に移動する必要があるのでまず確認する
-                if (y + 1 < 0 || x - 1 < 0 || x - 1 >= Config.stageCols || stage.board[y + 1][x - 1] != 0)
-                {
-                    if (y + 1 >= 0)
-                    {
-                        // ブロックがある。右に1個ずれる
-                        cx = 1;
-                    }
-                }
-                // 右にずれる必要がある時、右にもブロックがあれば回転出来ないので確認する
-                if (cx == 1)
-                {
-                    if (y + 1 < 0 || x + 1 < 0 || y + 1 >= Config.stageRows || x + 1 >= Config.stageCols || stage.
-                    board[y + 1][x + 1] != 0)
-                    {
-                        if (y + 1 >= 0)
-                        {
-                            // ブロックがある。回転出来なかった
-                            canRotate = false;
-                        }
-
-                        this.checkDoubleClick(frame);
-                    }
-                }
-            }
-            else if (rotation == 180)
-            {
-                // 左から下に回す時には、自分の下か左下にブロックがあれば1個上に引き上げる。まず下を確認する
-                if (y + 2 < 0 || y + 2 >= Config.stageRows || stage.board[y + 2][x] != 0)
-                {
-                    if (y + 2 >= 0)
-                    {
-                        // ブロックがある。上に引き上げる
-                        cy = -1;
-                    }
-                }
-                // 左下も確認する
-                if (y + 2 < 0 || y + 2 >= Config.stageRows || x - 1 < 0 || stage.board[y + 2][x - 1] != 0)
-                {
-                    if (y + 2 >= 0)
-                    {
-                        // ブロックがある。上に引き上げる
-                        cy = -1;
-                    }
-                }
-                //上に引き上げる必要がある時、軸ぷよが14段目に行くときは回転出来ないので確認する
-                if (cy == -1)
-                {
-                    if (y == 0)
-                    {
-                        //回転出来ない
-                        canRotate = false;
-                    }
-
-                    //落下中のぷよが、目的地のマスよりも出発地のマスの方に近いときは、1.5段くらい上げる
-                    if (Mathf.FloorToInt(puyoStatus.sceneY / Config.puyoImgHeight * 10) % 10 == 0)
-                    {
-                        //ぷよがブロックの境を超えていないときは何もしない。
-                        //ぷよがマスぴったりにいるかの座標の精度は、小数第一位まで。（if文では小数第一位が0か確認）
-                    }
-                    else if (Mathf.FloorToInt(puyoStatus.sceneY / Config.puyoImgHeight * 10) % 10 <= 5)
-                    {
-                        //小数第一位が1～5だったら1.5段くらい上げる
-                        cy = -2; //-2という数字に特に意味はない。
-                    }
-                }
-            }
-            else if (rotation == 270)
-            {
-                // 下から右に回すときは、右にブロックがあれば左に移動する必要があるのでまず確認する
-                if (y + 1 < 0 || x + 1 < 0 || x + 1 >= Config.stageCols || stage.board[y + 1][x + 1] != 0)
-                {
-                    if (y + 1 >= 0)
-                    {
-                        // ブロックがある。左に1個ずれる
-                        cx = -1;
-                    }
-                }
-                // 左にずれる必要がある時、左にもブロックがあれば回転出来ないので確認する
-                if (cx == -1)
-                {
-                    if (y + 1 < 0 || x - 1 < 0 || x - 1 >= Config.stageCols || stage.board[y + 1][x - 1] != 0)
-                    {
-                        if (y + 1 >= 0)
-                        {
-                            // ブロックがある。回転出来なかった
-                            canRotate = false;
-                        }
-
-                        this.checkDoubleClick(frame);
-                        
-                    }
-                }
-            }
-            if (canRotate)
-            {
-                // 上に移動する必要があるときは、一気にあげてしまう
-                if (cy == -1)
-                {
-                    if (groundFrame > 0)
-                    {
-                        // 接地しているなら1段引き上げる
-                        puyoStatus.y -= 1;
-                        //groundFrame = 0;
-                    }
-                    puyoStatus.sceneY = puyoStatus.y * Config.puyoImgHeight;
-                }
-                else if (cy == -2)
-                {
-                    //上に1.5段くらい引き上げる必要があるとき
-                    puyoStatus.y -= 1; //一つ上のマスに行く
-                    puyoStatus.sceneY = (puyoStatus.y + 0.5f) * Config.puyoImgHeight;
-                }
-
-                // 回すことが出来るので、回転後の情報をセットして回転状態にする
-                rotateStartFrame = frame;
-                rotateBeforeLeft = x * Config.puyoImgHeight;
-                rotateAfterLeft = (x + cx) * Config.puyoImgHeight;
-                rotateFromRotation = puyoStatus.rotation;
-
-                // 次の状態を先に設定しておく
-                puyoStatus.x += cx;
-                int distRotation = (puyoStatus.rotation + 90) % 360;
-                var dCombiOrigin = new int[4][] { new int[2] { 1, 0 }, new int[2] { 0, -1 }, new int[2] { -1, 0 }, new int[2] { 0, 1 } };
                 int[] dCombi = dCombiOrigin[distRotation / 90];
                 puyoStatus.dx = dCombi[0];
                 puyoStatus.dy = dCombi[1];
