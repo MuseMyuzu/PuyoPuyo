@@ -267,7 +267,7 @@ public class Player : MonoBehaviour
         bool pressA = Input.GetButtonDown("A");
         bool pressB = Input.GetButtonDown("B");
         //ぷよが回転していないときに、AまたはBボタンが押されたら
-        if((pressA || pressB) && !(rotateFlag || quickTurnFlag))
+        if((pressA || pressB) && !quickTurnFlag)
         {
             // 回転を確認する
             // 回せるかどうかは後で確認。まわすぞ
@@ -275,6 +275,19 @@ public class Player : MonoBehaviour
             int y = puyoStatus.y;
             int mx = x + puyoStatus.dx;
             int my = y + puyoStatus.dy;
+            //もしまだ回転中なのに、さらにぷよを回転させようとしたら、
+            //いったん回転が終わった状態に強制する
+            if (rotateFlag)
+            {
+                if (rotateDirection == -1)
+                {
+                    puyoStatus.rotation = (rotateFromRotation + (-90 + 360)) % 360;
+                }
+                else if (rotateDirection == 1)
+                {
+                    puyoStatus.rotation = (rotateFromRotation + 90) % 360;
+                }
+            }
             int rotation = puyoStatus.rotation;
             bool canRotate = true;
 
