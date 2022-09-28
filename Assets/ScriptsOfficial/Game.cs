@@ -35,6 +35,7 @@ public class Game : MonoBehaviour
     private PuyoImage puyoImage;
     private Score score;
     private Stage stage;
+    private MemoryPlayer memoryPlayer;
 
     void initialize()
     {
@@ -111,6 +112,9 @@ public class Game : MonoBehaviour
                     rensaText = rensaObj.GetComponent<Text>();
                     rensaText.text = combinationCount.ToString();
 
+                    //消した時のぷよ状態をcsvに保存
+                    memoryPlayer.save();
+
                     //全消しオブジェクトがあれば消す
                     stage.hideZenkeshi();
                 }
@@ -186,6 +190,7 @@ public class Game : MonoBehaviour
         this.puyoImage = gameObject.GetComponent<PuyoImage>();
         this.score     = gameObject.GetComponent<Score>();
         this.stage     = gameObject.GetComponent<Stage>();
+        this.memoryPlayer = gameObject.GetComponent<MemoryPlayer>();
         this.initialize();
         // ゲームを開始する
         this.loopFrag = true;
