@@ -314,12 +314,15 @@ public class Stage : MonoBehaviour
         }
         return null;
     }
+
     // 消すアニメーションをする
     public bool erasing(int frame)
     {
+        //消し始めてから、経過したフレーム数
         int elapsedFrame = frame - eraseStartFrame;
-        float ratio = elapsedFrame / Config.eraseAnimationDuration;
-        if (ratio > 1)
+        int blinkNum = 9;
+        float blinkInterval = 3.0f;
+        if (elapsedFrame >= Config.eraseAnimationDuration)
         {
             // アニメーションを終了する
             foreach (PuyoInfo info in erasingPuyoInfoList)
@@ -343,44 +346,33 @@ public class Stage : MonoBehaviour
 
             return false;
         }
-        else if (ratio > 0.75f)
+        else if (Mathf.FloorToInt(elapsedFrame/blinkInterval) <= blinkNum * 2 - 1)
         {
-            foreach(PuyoInfo info in erasingPuyoInfoList)
+            //6回だけぷよを非表示にし、2フレーム間隔で点滅させる。
+            if(Mathf.FloorToInt(elapsedFrame/blinkInterval) % 2 == 0)
             {
-                var renderComponent = info.puyoObject.GetComponent<Renderer>();
-                renderComponent.enabled = true;
+                //偶数フレームの時は非表示
+                foreach(PuyoInfo info in erasingPuyoInfoList)
+                {
+                    var renderComponent = info.puyoObject.GetComponent<Renderer>();
+                    renderComponent.enabled = false;
+                }
+            }
+            else
+            {
+                //奇数フレームの時は表示
+                foreach(PuyoInfo info in erasingPuyoInfoList)
+                {
+                    var renderComponent = info.puyoObject.GetComponent<Renderer>();
+                    renderComponent.enabled = true;
+                }
             }
             
             return true;
         }
-        else if (ratio > 0.50f)
-        {
-            foreach (PuyoInfo info in erasingPuyoInfoList)
-            {
-                var renderComponent = info.puyoObject.GetComponent<Renderer>();
-                renderComponent.enabled = false;
-            }
-
-            return true;
-        }
-        else if (ratio > 0.25f)
-        {
-            foreach (PuyoInfo info in erasingPuyoInfoList)
-            {
-                var renderComponent = info.puyoObject.GetComponent<Renderer>();
-                renderComponent.enabled = true;
-            }
-
-            return true;
-        }
         else
         {
-            foreach (PuyoInfo info in erasingPuyoInfoList)
-            {
-                var renderComponent = info.puyoObject.GetComponent<Renderer>();
-                renderComponent.enabled = false;
-            }
-
+            //ぷよが驚いて、泡になってはじけるアニメーション
             return true;
         }
     }
