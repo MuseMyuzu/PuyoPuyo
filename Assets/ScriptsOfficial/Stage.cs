@@ -320,8 +320,8 @@ public class Stage : MonoBehaviour
     {
         //消し始めてから、経過したフレーム数
         int elapsedFrame = frame - eraseStartFrame;
-        int blinkNum = 9;
-        float blinkInterval = 3.0f;
+        int blinkNum = 6;
+        float blinkInterval = 2.0f;
         if (elapsedFrame >= Config.eraseAnimationDuration)
         {
             // アニメーションを終了する

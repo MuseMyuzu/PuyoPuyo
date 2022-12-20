@@ -23,7 +23,7 @@ public class Config : MonoBehaviour
 
     public static int freeFallingSpeed = 25; // 自由落下のスピード（ちぎったとき）
     public static int erasePuyoCount = 4; // 何個以上揃ったら消えるか
-    public static float eraseAnimationDuration = 67.5f; // 何フレームでぷよを消すか
+    public static float eraseAnimationDuration = 47.0f; // 何フレームでぷよを消すか
 
     public static int puyoColors = 4; // 何色のぷよを使うか
     public static float playerFallingSpeed = 0.9f; // プレイ中の自然落下のスピード
